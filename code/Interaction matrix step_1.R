@@ -5,16 +5,20 @@ library(reshape2)
 library(nlme)
 library(car)
 
+#load plant data
 plants <- read.csv("data/BE.plants08.16.csv", header = TRUE)
 
+#load LUI data
 lui <- read.csv("data/LUI06_15.csv", header  = TRUE)
 
+#stick with LUI at different years
 lui.only <- lui[, grep("LUI", names(lui))]
 lui.only2 <- lui.only[, -c(1:2)] ## remove 2006 and 2007
 
+#leave only plant species' columns
 plant.only <- plants[-c(1:5)]
 
-### top50
+### top50 --- select the 51 most common plant species
 top50 <- rev(sort(apply(plants[, -c(1:5)], 2, mean, na.rm = TRUE)))[1:51]
 top50.short <- c("Poa_tri", "Poa_pra", "Alo_pra", "Dac_glo", "Tri_rep", "Tar_off", "Lol_per", "Arr_ela", 
                  "Fes_rub", "Fes_pra", "Tri_fla", "Ely_rep", "Tri_pra", "Bro_ere", "Ran_rep", "Bro_hor", 
@@ -24,19 +28,29 @@ top50.short <- c("Poa_tri", "Poa_pra", "Alo_pra", "Dac_glo", "Tri_rep", "Tar_off
                  "Thy_pul", "Lol_mul", "Cir_arv", "Lot_cor", "Ran_bul", "Tri_dub", "Med_lup", "Leo_his",
                  "Car_car", "Vic_sep", "Pru_sp")
 
-plants2 <- plants[, match(names(top50), names(plants))]
+plants2 <- plants[, match(names(top50), names(plants))] #dataset with the 51 most common plant species
 
-Rest <- apply(plant.only[, -match(names(top50), names(plant.only))], 1, sum, na.rm = TRUE)
+Rest <- apply(plant.only[, -match(names(top50), names(plant.only))], 1, sum, na.rm = TRUE) #sum all the other plant species per row
 
-plants3 <- cbind(plants2, Rest)
+plants3 <- cbind(plants2, Rest) #add a column with the sum of the non-selected plant species
 plants3 <- plants3 / apply(plants3, 1, sum) # to rscale to no more than 100%
-names(plants3)[1:51] <- top50.short
+names(plants3)[1:51] <- top50.short #give them standard names
 
-pyear <- split(plants3, plants$Year)
+#dif. species for dif. LUI values
+
+
+
+
+
+
+
+
+pyear <- split(plants3, plants$Year) #create a different dataset within a list for each year
 pchange <- list()
 pchange.logit <- list()
 pchange.log <- list()
 pchange.relative <- list()
+
 
 # This is to prepare the database in order to conduct the analyses where t+1 will be compared to t
 for(i in 1:(length(pyear) - 1)){

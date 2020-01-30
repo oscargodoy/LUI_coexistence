@@ -868,10 +868,10 @@ gr_3 <- ggplot(data_lui_4_1, aes(x=richness, y=overlap)) + geom_point(alpha = 0.
 gr_4 <- ggplot(data_lui_4_1, aes(x=richness, y=differential)) + geom_point(alpha = 0.3) + labs(x = "Richness", y= "Differential", tag = "D") + geom_smooth(method = "lm")
 gr_5 <- ggplot(data_lui_4_1, aes(x=richness, y=feasibility)) + geom_point(alpha = 0.3) + labs(x = "Richness", y= "Feasibility", tag = "E") + geom_smooth(method = "lm")
 
-grid.arrange(gr_1, gr_2, gr_3, gr_4, gr_5, nrow=2, ncol=3)
+grid.arrange(gr_1, gr_2, gr_3, gr_4, gr_5, nrow = 2, ncol = 3)
 
 
-#LUI=4.4----
+#LUI = 4.4----
 
 results_coex_4_4 <- results_coex[[19]]
 

@@ -1,22 +1,22 @@
   #Compute structural metrics for different species richness combos across the LUI gradient
   
-  rm(list=ls())
+  rm(list = ls())
 
   
   #1.Obtaining combinations to calculate niche and fitness diff.----
   #loading average values
-  intrinsic <- read.table("results/intrinsic_site_lui_average_lme_50.csv", header=T, sep=",", row.names=1)
-  alpha <- as.matrix(read.table("results/interaction_matrix_lme_average_50.csv", header=T, sep=",", row.names=1))
-  lui_modify_alpha <- as.matrix(read.table("results/lui_matrix_lme_average_50.csv", header=T, sep=",", row.names=1))
+  intrinsic <- read.table("results/intrinsic_site_lui_average_lme_50.csv", header = TRUE, sep = ",", row.names = 1)
+  alpha <- as.matrix(read.table("results/interaction_matrix_lme_average_50.csv", header = TRUE, sep = ",", row.names = 1))
+  lui_modify_alpha <- as.matrix(read.table("results/lui_matrix_lme_average_50.csv", header = TRUE, sep = ",", row.names = 1))
   top50.short <- c("Poa_tri", "Poa_pra", "Alo_pra", "Dac_glo", "Tri_rep", "Tar_off", "Lol_per", "Arr_ela", 
                    "Fes_rub", "Fes_pra", "Tri_fla", "Ely_rep", "Tri_pra", "Bro_ere", "Ran_rep", "Bro_hor", 
-                   "Ran_acr", "Pla_lan","Ach_mil", "Gal_mol", "Her_sph", "Ant_syl", "Hol_lan", "Hel_pub",
+                   "Ran_acr", "Pla_lan", "Ach_mil", "Gal_mol", "Her_sph", "Ant_syl", "Hol_lan", "Hel_pub",
                    "Ant_odo", "Bra_pin", "Car_hir", "Ver_cha", "Rum_ace", "Fes_ovi", "Phl_pra", "Pha_aru",
                    "Des_ces", "Agr_sto", "Cyn_cri", "Cir_ole", "Cer_hol", "Pla_med", "Cre_bie", "Urt_dio",
                    "Thy_pul", "Lol_mul", "Cir_arv", "Lot_cor", "Ran_bul", "Tri_dub", "Med_lup", "Leo_his",
                    "Car_car", "Vic_sep", "Pru_sp")
   
-  #Simulate x values of LUI at equal intervals. 
+  #Simulate x values of LUI at equal intervals
   lui1 <- seq(from = 0, to = 2, by = 0.2)
   lui2 <- seq(from = 2.3, to = 4.50, by = 0.3)
   lui <- c(lui1,lui2) #This gives in total a 20 LUI values to model, more replication in the section from 0 to 2. 
@@ -24,9 +24,9 @@
   
   lui_intrinsic <- list()
   lui_alpha <- list()
-  xx<- matrix(nrow=51, ncol=2, NA)
+  xx <- matrix(nrow = 51, ncol = 2, NA)
   colnames(xx) <- c("intrinsic", "lui_value")
-  row.names(xx)<- paste(top50.short, sep=",")
+  row.names(xx) <- paste(top50.short, sep = ",")
   
   #to obtain all value of intrinsic abundance at different LUI values
   for(i in 1:(length(lui))){
@@ -37,7 +37,7 @@
     lui_intrinsic[[i]] <- xx
   }
   
-  #to obtain species with positive intrinsic at each site.
+  #to obtain species with positive intrinsic at each site
   lui_intrinsic_positive <-  list()
   zz <- list()
   for(i in 1:(length(lui_intrinsic))){
@@ -97,7 +97,7 @@
          cc2 <- RcppAlgos::comboGeneral(row.names(lui_alpha[[i]]),j)
          
        } else
-         cc2 <- RcppAlgos::comboSample(row.names(lui_alpha[[i]]),j,n=10000)
+         cc2 <- RcppAlgos::comboSample(row.names(lui_alpha[[i]]), j, n = 10000)
        
        combos[[j]] <- cc2
      }
@@ -124,7 +124,7 @@
 #saveRDS(combos_lui_full, 'new results/combos_lui_sps_full.rds') Not computed because it is very high demanding
 stopCluster(cl) #stop cluster
 
-end_time <- Sys.time() #save time once finished. 
+end_time <- Sys.time() #save time once finished
 
 end_time - start_time
 
@@ -155,7 +155,9 @@ start_time <- Sys.time() # to see how much it takes to run
 #We load the data first
 combos_lui<-readRDS('results/combos_lui_sps_reduced_10000.rds')
 
+
 # We are going to separate the database in several pieces to do not colapso with the computing
+
 #First five LUI values  ----
 combos_lui2 <- combos_lui[1:5]
 results <- list()
