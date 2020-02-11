@@ -36,14 +36,6 @@ plants3 <- cbind(plants2, Rest) #add a column with the sum of the non-selected p
 plants3 <- plants3 / apply(plants3, 1, sum) # to rscale to no more than 100%
 names(plants3)[1:51] <- top50.short #give them standard names
 
-#dif. species for dif. LUI values
-
-
-
-
-
-
-
 
 pyear <- split(plants3, plants$Year) #create a different dataset within a list for each year
 pchange <- list()
@@ -162,6 +154,9 @@ write.csv(inter.mat.error, "results/interaction_matrix_lme_std_error_50.csv")
 write.csv(lui.mat.error, "results/lui_matrix_lme_std_error_50.csv")
 write.csv(intrinsic.site.lui.error, "results/intrinsic_site_lui_std_error_lme_50.csv")
 #From here we can calculate latter 95CI intervals multiplying by ±1.96. 
+
+
+
 
 ## calculate response to LUI of each species (Put as a Table)----
 ##This serves to understand whether species are winners, neutrals or losers to LUI

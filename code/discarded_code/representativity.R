@@ -1,6 +1,6 @@
 # representativity of the number of combinations selected
 
-n_spp <- 51
+n_spp <- 50
 div <- seq(from = 2, to = n_spp/2, by = 1)
 
 combi <- NULL
@@ -36,6 +36,7 @@ library(ggplot2)
 
 full <- ggplot(data = repre, aes(x = richness, y = per_s, colour = n_subsample)) + geom_line() +
   scale_x_continuous(name = "Species richness", breaks = c(seq(2, 13, 1), seq(13, 25, 2))) +
+  ggtitle("50 species community") +
   scale_y_continuous(name = "Representativity (%)") + labs(colour = "Subsample") + theme_grey()
 
 limited1 <- ggplot(data = repre, aes(x = richness, y = per_s, colour = n_subsample)) + geom_line() +
