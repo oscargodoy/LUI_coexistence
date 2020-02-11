@@ -5,7 +5,12 @@ date: "`r format(Sys.time(), '%d/%m/%Y')`"
 output:
   html_document:
     number_sections: yes
+    toc: yes
 ---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(cache = TRUE)
+```
 
 # Prepare the data
 
@@ -15,14 +20,14 @@ First of all, we need to re-structure the database. We will only use data from 2
 
 First of all, we define the path to load the raw data:
 
-```{r raw_data_path, cache = TRUE}
+```{r raw_data_path}
 #in the end, raw data needs to go to a public repository
 raw_path <- "data/raw_data"
 ```
 
 And then we start by the LUI dataset:
 
-```{r restructure_lui, cache = TRUE}
+```{r restructure_lui}
 #load LUI data
 lui <- read.csv(paste(raw_path, "LUI06_15.csv", sep = "/"), header  = TRUE)
 
@@ -55,7 +60,7 @@ And continue with the plants dataset:
 
 In this case, though, we will save two different data files, both of which we will merge with the previously obtained LUI data. The first one that we obtain corresponds to the original data for the 26 most common species in the different plots, with a final column representing the cumulative data for all other species present at each plot, which we will call `rest`. Note that we also re-scale the data to avoid having values over 100%. **We will use this to quantify the intra- and inter-specific interaction coefficients for all plant species.**
 
-```{r restructure_plants_quanti, cache = TRUE}
+```{r restructure_plants_quanti}
 #this chunk depends on chunk(s): restructure_lui
 
 #number of plants
@@ -115,7 +120,7 @@ write.table(q_plants, "data/q_plants.txt", row.names = FALSE, sep = "\t")
 
 The second one corresponds to the presence or absence of the 26 most common plant species. To do so, we change the value of each cell for a 1 (values over 0) or a 0 (values equal to zero) where corresponds. This will allow us to explore the relationship between species richness and LUI and also to select the feasible combinations for each richness level. (The following code uses the data frame `plants`, obtained in the previous code chunk.)
 
-```{r restructure_plants_qualit, cache = TRUE}
+```{r restructure_plants_qualit}
 #this chunk depends on chunk(s): restructure_lui, restructure_plants_quanti
 
 #change to presence/absence data (0 or 1)
@@ -155,7 +160,7 @@ Now, we want to do two things:
 
 To do so, we already have the LUI data in good shape (`lui_total`), so we start by preparing the dataset for the full plant community:
 
-```{r lui_richness_full_comm, cache = TRUE}
+```{r lui_richness_full_comm}
 #this chunk depends on chunk(s): restructure_lui
 
 #load plant data
@@ -200,7 +205,7 @@ rm(i, j, rich_full)
 
 Then, we apply an equivalent procedure to obtain the richness by datapoint of our 26-species community:
 
-```{r lui_richness_26spp_comm, cache = TRUE}
+```{r lui_richness_26spp_comm}
 #this chunk depends on chunk(s): restructure_lui, lui_richness_full_comm
 
 #dataset with the most common plant species
@@ -228,7 +233,7 @@ rm(lui_total, plants, rich_26spp)
 
 And, finally, with both data frames ready we can proceed to plot the data to describe the variability of LUI and the relationship between LUI and species richness for both the full and 26-species community.
 
-```{r plot_lui_richness, cache = TRUE, warning = FALSE, message = FALSE, fig.height = 7, fig.width = 7}
+```{r plot_lui_richness, warning = FALSE, message = FALSE, fig.height = 7, fig.width = 7}
 #this chunk depends on chunk(s): restructure_plants_quanti,
 #restructure_lui, lui_richness_full_comm, lui_richness_26spp_comm
 
@@ -296,7 +301,7 @@ Picking which combinations we are going to use to apply the structural coexisten
 
 First of all, we ought to understand how well represented are the different combinations of different richness levels in our data. This way, we avoid choosing a richness level that has actually no representation in nature.
 
-```{r saturation, cache = TRUE, fig.height = 4, fig.width = 6}
+```{r saturation, fig.height = 4, fig.width = 6}
 #this chunk depends on chunk(s): restructure_plants_quanti
 
 #load qualitative plants
@@ -343,7 +348,7 @@ Now, we need to select the specific combinations that are feasible (i.e., the on
 
 The function looks as follows:
 
-```{r function_selector, cache = TRUE}
+```{r function_selector}
 #function to select the combinations above a certain threshold of presence
 selector <- function(df, n, threshold){
   
@@ -429,7 +434,7 @@ selector <- function(df, n, threshold){
 
 And then we need to compute the function for different richness levels. This is an important step. Given that we may choose richness levels from 2 to 17, **we have decided to use the following sequence: 2, 3, 5, 7, 11 and 17 species**. In this sequence, each element is the result of the sum of the two previous elements minus one (e.g., `11 = (5 + 7) - 1`). Besides, the following piece of code should be run in a cluster of computation because it takes a long time to finish ---that's why the code is commented (annuled by `#`). In any case, note that we use the `p_plants_only` dataset and a threshold value of zero (if the combination is present at any given spot, we save it).
 
-```{r combos_selection, cache = TRUE}
+```{r combos_selection}
 #this chunk depends on chunk(s): saturation, function_selector
 
 ##set a threshold (in %)
@@ -447,9 +452,9 @@ And then we need to compute the function for different richness levels. This is 
 rm(selector, p_plants_only)
 ```
 
-After running the code in the cluster, we may load the combos selected for each richness level:
+After running the code in the cluster, we may load the combos selected for each richness level.
 
-```{r load_combos, cache = TRUE}
+```{r load_combos}
 #load combos of 2 species
 combos2 <- read.table("results/selected_combos/combos2.txt", sep = "\t", header = TRUE)
 
@@ -468,6 +473,8 @@ combos5 <- read.table("results/selected_combos/combos5.txt", sep = "\t", header 
 #load combos of 17 species
 combos17 <- read.table("results/selected_combos/combos17.txt", sep = "\t", header = TRUE)
 ```
+
+# Quantify the interaction coefficients and LUI effects
 
 
 

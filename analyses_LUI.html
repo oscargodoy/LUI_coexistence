@@ -369,6 +369,25 @@ summary {
 
 </div>
 
+<div id="TOC">
+<ul>
+<li><a href="#prepare-the-data"><span class="toc-section-number">1</span> Prepare the data</a><ul>
+<li><a href="#land-use-intensity-lui"><span class="toc-section-number">1.1</span> Land Use Intensity (LUI)</a></li>
+<li><a href="#plant-species-data"><span class="toc-section-number">1.2</span> Plant species data</a><ul>
+<li><a href="#prepare-quantitative-data"><span class="toc-section-number">1.2.1</span> Prepare quantitative data</a></li>
+<li><a href="#prepare-qualitative-data-presenceabsence"><span class="toc-section-number">1.2.2</span> Prepare qualitative data (presence/absence)</a></li>
+</ul></li>
+</ul></li>
+<li><a href="#data-description-for-decision-making"><span class="toc-section-number">2</span> Data description for decision-making</a><ul>
+<li><a href="#range-of-lui-and-relationship-with-species-richness"><span class="toc-section-number">2.1</span> Range of LUI and relationship with species richness</a></li>
+<li><a href="#feasible-combinations-for-each-richness-level"><span class="toc-section-number">2.2</span> Feasible combinations for each richness level</a><ul>
+<li><a href="#select-the-richness-levels-for-the-analyses"><span class="toc-section-number">2.2.1</span> Select the richness levels for the analyses</a></li>
+<li><a href="#pick-the-combinations-for-each-richness-level"><span class="toc-section-number">2.2.2</span> Pick the combinations for each richness level</a></li>
+</ul></li>
+</ul></li>
+<li><a href="#quantify-the-interaction-coefficients-and-lui-effects"><span class="toc-section-number">3</span> Quantify the interaction coefficients and LUI effects</a></li>
+</ul>
+</div>
 
 <div id="prepare-the-data" class="section level1">
 <h1><span class="header-section-number">1</span> Prepare the data</h1>
@@ -569,7 +588,10 @@ write.table(richness_26spp_comm, &quot;data/richness_26spp_comm.txt&quot;,
 #clean
 rm(lui_total, plants, rich_26spp)</code></pre>
 <p>And, finally, with both data frames ready we can proceed to plot the data to describe the variability of LUI and the relationship between LUI and species richness for both the full and 26-species community.</p>
-<pre class="r"><code>#load ggplot2
+<pre class="r"><code>#this chunk depends on chunk(s): restructure_plants_quanti,
+#restructure_lui, lui_richness_full_comm, lui_richness_26spp_comm
+
+#load ggplot2
 library(ggplot2)
 
 #color-blind friendly colour palette - do not lose clean this, it&#39;s very useful
@@ -629,7 +651,9 @@ rm(list=ls()[! ls() %in% c(&quot;n_plants&quot;)])</code></pre>
 <div id="select-the-richness-levels-for-the-analyses" class="section level3">
 <h3><span class="header-section-number">2.2.1</span> Select the richness levels for the analyses</h3>
 <p>First of all, we ought to understand how well represented are the different combinations of different richness levels in our data. This way, we avoid choosing a richness level that has actually no representation in nature.</p>
-<pre class="r"><code>#load qualitative plants
+<pre class="r"><code>#this chunk depends on chunk(s): restructure_plants_quanti
+
+#load qualitative plants
 p_plants &lt;- read.table(&quot;data/p_plants.txt&quot;, header = TRUE, sep = &quot;\t&quot;)
 
 #data only with the plants in columns
@@ -751,7 +775,9 @@ selector &lt;- function(df, n, threshold){
   return(sel_comb) #return the final df with all saved combinations
 } #end selector()</code></pre>
 <p>And then we need to compute the function for different richness levels. This is an important step. Given that we may choose richness levels from 2 to 17, <strong>we have decided to use the following sequence: 2, 3, 5, 7, 11 and 17 species</strong>. In this sequence, each element is the result of the sum of the two previous elements minus one (e.g., <code>11 = (5 + 7) - 1</code>). Besides, the following piece of code should be run in a cluster of computation because it takes a long time to finish —that’s why the code is commented (annuled by <code>#</code>). In any case, note that we use the <code>p_plants_only</code> dataset and a threshold value of zero (if the combination is present at any given spot, we save it).</p>
-<pre class="r"><code>##set a threshold (in %)
+<pre class="r"><code>#this chunk depends on chunk(s): saturation, function_selector
+
+##set a threshold (in %)
 #t &lt;- 0
 #
 ##compute and save the selected combos (TO DO IN THE CLUSTER OF COMPUTATION!)
@@ -764,7 +790,7 @@ selector &lt;- function(df, n, threshold){
 
 #clean a bit
 rm(selector, p_plants_only)</code></pre>
-<p>After running the code in the cluster, we may load the combos selected for each richness level:</p>
+<p>After running the code in the cluster, we may load the combos selected for each richness level.</p>
 <pre class="r"><code>#load combos of 2 species
 combos2 &lt;- read.table(&quot;results/selected_combos/combos2.txt&quot;, sep = &quot;\t&quot;, header = TRUE)
 
@@ -784,6 +810,9 @@ combos5 &lt;- read.table(&quot;results/selected_combos/combos5.txt&quot;, sep = 
 combos17 &lt;- read.table(&quot;results/selected_combos/combos17.txt&quot;, sep = &quot;\t&quot;, header = TRUE)</code></pre>
 </div>
 </div>
+</div>
+<div id="quantify-the-interaction-coefficients-and-lui-effects" class="section level1">
+<h1><span class="header-section-number">3</span> Quantify the interaction coefficients and LUI effects</h1>
 </div>
 
 
