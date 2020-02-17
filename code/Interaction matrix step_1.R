@@ -6,10 +6,10 @@ library(nlme)
 library(car)
 
 #load plant data
-plants <- read.csv("data/BE.plants08.16.csv", header = TRUE)
+plants <- read.csv("data/raw_data/BE.plants08.16.csv", header = TRUE)
 
 #load LUI data
-lui <- read.csv("data/LUI06_15.csv", header  = TRUE)
+lui <- read.csv("data/raw_data/LUI06_15.csv", header  = TRUE)
 
 #stick with LUI at different years
 lui.only <- lui[, grep("LUI", names(lui))]
@@ -35,7 +35,7 @@ Rest <- apply(plant.only[, -match(names(top50), names(plant.only))], 1, sum, na.
 plants3 <- cbind(plants2, Rest) #add a column with the sum of the non-selected plant species
 plants3 <- plants3 / apply(plants3, 1, sum) # to rscale to no more than 100%
 names(plants3)[1:51] <- top50.short #give them standard names
-
+  
 
 pyear <- split(plants3, plants$Year) #create a different dataset within a list for each year
 pchange <- list()

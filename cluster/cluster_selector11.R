@@ -1,6 +1,5 @@
 #Cluster 11
 
-#define function selector
 #function to select the combinations above a certain threshold of presence
 selector <- function(df, n, threshold){
   
@@ -38,7 +37,7 @@ selector <- function(df, n, threshold){
   i = 2 #define the starting point
   while (i != choose(length(vec), n)){
     
-    #loop j for the elements of the combo vector, starting at position 2 (length(combo) == n)
+    #loop j for the elements of the combo vector, starting at position 2
     for (j in 1:n){
       
       #conditions to match
@@ -48,12 +47,13 @@ selector <- function(df, n, threshold){
           #do nothing, continue to the next element
           
         } else { #if the element is, in fact, the last one
-          combo[j] <- vec[which(combo[j] == vec) + 1] #write the following corresponding value
+          combo[j] <- vec[which(combo[j] == vec) + 1] #write the following corresp. value
         }
         
       } else { #if it is actually the maximum value for that element
         #write the following corresponding values from the previous position to the end
-        combo[(j - 1):n] <- vec[(which(combo[j - 1] == vec) + 1):((which(combo[j - 1] == vec) + 1) + ((n - j) + 1))]
+        combo[(j - 1):n] <- vec[(which(combo[j - 1] == vec) + 1):
+                                  ((which(combo[j - 1] == vec) + 1) + ((n - j) + 1))]
         break #enough - changes have been made
       }
     } #end j
@@ -83,12 +83,12 @@ selector <- function(df, n, threshold){
 } #end selector()
 
 #load data
-df11 <- read.table("df11.txt", header = TRUE, sep = "\t")
+p_plant_only <- read.table("p_plant_only.txt", header = TRUE, sep = "\t")
 
 #compute the combos
-res11 <- selector(df = df11, n = 11, threshold = 0)
+combos11 <- selector(df = p_plant_only, n = 11, threshold = 0)
 
 #save results
-write.table(res11, "res11.txt", sep = "\t", row.names = FALSE)
+write.table(combos11, "combos11.txt", sep = "\t", row.names = FALSE)
 
 #end

@@ -1,4 +1,4 @@
-#Cluster 17
+#Cluster 7
 
 #function to select the combinations above a certain threshold of presence
 selector <- function(df, n, threshold){
@@ -86,9 +86,9 @@ selector <- function(df, n, threshold){
 p_plant_only <- read.table("p_plant_only.txt", header = TRUE, sep = "\t")
 
 #compute the combos
-combos17 <- selector(df = p_plant_only, n = 17, threshold = 0)
+combos7 <- selector(df = p_plant_only, n = 7, threshold = 0)
 
 #save results
-write.table(combos17, "combos17.txt", sep = "\t", row.names = FALSE)
+write.table(combos7, "combos7.txt", sep = "\t", row.names = FALSE)
 
 #end

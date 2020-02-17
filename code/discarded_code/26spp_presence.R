@@ -2,7 +2,7 @@
 n_plants <- 26
 
 #load LUI data
-lui <- read.csv("data/LUI06_15.csv", header  = TRUE)
+lui <- read.csv("data/raw_data/LUI06_15.csv", header  = TRUE)
 
 #stick with LUI at different years
 lui.only <- lui[, grep("LUI", names(lui))]
@@ -20,22 +20,20 @@ lui_total <- data.frame("Plot" = pp, "Year" = yy, "LUI" = lu)
 rm(lui, lui_tot, lui.only, lui.only2, pp, lu, yy)
 
 #load plant data
-plants <- read.csv("data/BE.plants08.16.csv", header = TRUE)
+plants <- read.csv("data/raw_data/BE.plants08.16.csv", header = TRUE)
 
 plants <- plants[plants$Year != 2016, ]
 
-plants <- plants[-c(1:5)]
+plants <- plants[-c(1:4)]
 
 ### top --- select the 51 most common plant species
-top <- rev(sort(apply(plants[, -c(1:5)], 2, mean, na.rm = TRUE)))[1:n_plants]
+top <- rev(sort(apply(plants, 2, mean, na.rm = TRUE)))[1:n_plants]
 
-top.short <- c("Poa_tri", "Poa_pra", "Alo_pra", "Dac_glo", "Tri_rep", "Tar_off", "Lol_per", "Arr_ela", 
-                 "Fes_rub", "Fes_pra", "Tri_fla", "Ely_rep", "Tri_pra", "Ran_rep", "Bro_ere", "Ran_acr", 
-                 "Bro_hor", "Pla_lan", "Ant_syl", "Her_sph", "Gal_mol", "Hol_lan", "Hel_pub", "Car_hir",
-                 "Bra_pin", "Pha_aru")#, "Ant_odo", "Ver_cha", "Fes_ovi", "Rum_ace", "Des_ces", "Phl_pra", 
-                 #"Agr_sto", "Cyn_cri", "Cir_ole", "Cre_bie", "Cer_hol", "Pla_med", "Thy_pul", "Urt_dio",
-                 #"Lol_mul", "Cir_arv", "Ran_bul", "Tri_dub", "Lot_cor", "Car_car", "Leo_his", "Vic_sep",
-                 #"Med_lup", "Pru_spp")#, "Sym_off")
+top.short <- c("Poa_tri", "Poa_pra", "Alo_pra", "Dac_glo", "Tri_rep", "Tar_off",
+               "Lol_per", "Arr_ela", "Fes_rub", "Fes_pra", "Tri_fla", "Ely_rep",
+               "Tri_pra", "Ran_rep", "Bro_ere", "Ran_acr", "Bro_hor", "Pla_lan",
+               "Ach_mil", "Ant_syl", "Her_sph", "Gal_mol", "Hol_lan", "Hel_pub",
+               "Car_hir", "Bra_pin")
 
 plants <- plants[, match(names(top), names(plants))] #dataset with the 51 most common plant species
 names(plants) <- top.short #give them standard names
@@ -75,7 +73,9 @@ df <- read.table("data/spp_LUI_26.txt", header = TRUE, sep = "\t")[, 4:(n_plants
 rm(n_plants)
 t <- 0 #above the threshold, the combo is selected
 
-#res2 <- selector(df, n = 2, t)
+df1 <- read.table("data/p_plant_only.txt", header = TRUE, sep = "\t")#[, 4:(n_plants + 3)]
+
+res2 <- selector(df, n = 2, t)
 #res3 <- selector(df, n = 3, t)
 #res5 <- selector(df, n = 5, t)
 #write.table(res2, "results/res2.txt", row.names = FALSE, sep = "\t")

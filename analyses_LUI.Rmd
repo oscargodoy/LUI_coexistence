@@ -18,11 +18,14 @@ First of all, we need to re-structure the database. We will only use data from 2
 
 ## Land Use Intensity (LUI)
 
-First of all, we define the path to load the raw data:
+First of all, we define the path to load the raw data and the number of plants we will use:
 
-```{r raw_data_path}
+```{r path_and_plants}
 #in the end, raw data needs to go to a public repository
 raw_path <- "data/raw_data"
+
+#number of plants in the community
+n_plants <- 26
 ```
 
 And then we start by the LUI dataset:
@@ -35,6 +38,9 @@ lui <- read.csv(paste(raw_path, "LUI06_15.csv", sep = "/"), header  = TRUE)
 lui.only <- lui[, grep("LUI", names(lui))]
 lui.only2 <- lui.only[, -c(1:2)] ## remove 2006 and 2007
 lui_tot <- cbind("plot" = lui$Plot, lui.only2)
+
+#save lui_tot
+write.table(lui_tot, "data/lui_tot.txt", row.names = FALSE, sep = "\t")
 
 #restructure LUI
 lu <- c(lui_tot$LUI_08, lui_tot$LUI_09, lui_tot$LUI_10, lui_tot$LUI_11,
@@ -58,59 +64,48 @@ rm(lui, lui_tot, lui.only, lui.only2, pp, lu, yy)
 
 And continue with the plants dataset:
 
-In this case, though, we will save two different data files, both of which we will merge with the previously obtained LUI data. The first one that we obtain corresponds to the original data for the 26 most common species in the different plots, with a final column representing the cumulative data for all other species present at each plot, which we will call `rest`. Note that we also re-scale the data to avoid having values over 100%. **We will use this to quantify the intra- and inter-specific interaction coefficients for all plant species.**
+In this case, though, we will save two different data files. The first one that we obtain corresponds to the original data for the 26 most common species in the different plots, with a final column representing the cumulative data for all other species present at each plot, which we will call `rest`. Note that we also re-scale the data to avoid having values over 100%. **We will use this to quantify the intra- and inter-specific interaction coefficients for all plant species.**
 
 ```{r restructure_plants_quanti}
 #this chunk depends on chunk(s): restructure_lui
 
-#number of plants
-n_plants <- 26
-
 #load plant data
 plants <- read.csv(paste(raw_path, "BE.plants08.16.csv", sep = "/"), header = TRUE)
 
-#remove data from 2016
+#remove data from 2016 because there is no LUI data
 plants <- plants[plants$Year != 2016, ]
 
 #remove info columns
 #format is the same order as LUI, so we'll later merge with LUI to have all info
-plants <- plants[-c(1:5)]
+plant_only <- plants[-c(1:4)]
 
 ### top --- select the most common plant species
-top <- rev(sort(apply(plants[, -c(1:5)], 2, mean, na.rm = TRUE)))[1:n_plants]
+top <- rev(sort(apply(plant_only, 2, mean, na.rm = TRUE)))[1:n_plants]
 
 #short standard names for the selected plants --- WARNING: CURRENTLY, A MANUAL STEP
 top.short <- c("Poa_tri", "Poa_pra", "Alo_pra", "Dac_glo", "Tri_rep", "Tar_off",
                "Lol_per", "Arr_ela", "Fes_rub", "Fes_pra", "Tri_fla", "Ely_rep",
                "Tri_pra", "Ran_rep", "Bro_ere", "Ran_acr", "Bro_hor", "Pla_lan",
-               "Ant_syl", "Her_sph", "Gal_mol", "Hol_lan", "Hel_pub", "Car_hir",
-               "Bra_pin", "Pha_aru")
-
-#the following species would be: "Ant_odo", "Ver_cha", "Fes_ovi", "Rum_ace", "Des_ces",
-#"Phl_pra", "Agr_sto", "Cyn_cri", "Cir_ole", "Cre_bie", "Cer_hol", "Pla_med", "Thy_pul",
-#"Urt_dio", "Lol_mul", "Cir_arv", "Ran_bul", "Tri_dub", "Lot_cor", "Car_car", "Leo_his",
-#"Vic_sep","Med_lup", "Pru_spp", "Sym_off")
+               "Ach_mil", "Ant_syl", "Her_sph", "Gal_mol", "Hol_lan", "Hel_pub",
+               "Car_hir", "Bra_pin")
 
 #sum all the other plant species per row
-rest <- apply(plants[, -match(names(top), names(plants))], 1, sum, na.rm = TRUE)
+rest <- apply(plant_only[, -match(names(top), names(plant_only))], 1, sum, na.rm = TRUE)
 
 #dataset with the most common plant species
-plants <- plants[, match(names(top), names(plants))]
+plant_only <- plant_only[, match(names(top), names(plant_only))]
 
 #give them standard short names
-names(plants) <- top.short
+names(plant_only) <- top.short
 
 #add a column with the sum of the non-selected plant species
-q_plants <- cbind(plants, rest); rm(rest)
+q_plants <- cbind(plant_only, rest); rm(rest)
 
 # to re-scale to no more than 100%
 q_plants <- q_plants / apply(q_plants, 1, sum) #q_plants = quantitative plant data
 
 #add plot, year & LUI information
-q_plants <- cbind(lui_total, q_plants)
-
-#remove NAs
-q_plants <- na.omit(q_plants)
+q_plants <- cbind(plants[c(1:4)], q_plants)
 
 #save q_plants
 write.table(q_plants, "data/q_plants.txt", row.names = FALSE, sep = "\t")
@@ -124,29 +119,35 @@ The second one corresponds to the presence or absence of the 26 most common plan
 #this chunk depends on chunk(s): restructure_lui, restructure_plants_quanti
 
 #change to presence/absence data (0 or 1)
-for (i in 1:nrow(plants)){
-  for (j in 1:ncol(plants)){
-    if(is.na(plants[i, j])){
-      plants[i, j] <- 0
+for (i in 1:nrow(plant_only)){
+  for (j in 1:ncol(plant_only)){
+    if(is.na(plant_only[i, j])){
+      #do nothing
     } else {
-      if (plants[i, j] > 0){
-        plants[i, j] <- 1
+      if (plant_only[i, j] > 0){
+        plant_only[i, j] <- 1
       }
     }
   }
 }
 
-#final data frame for plant presence/absence
-p_plants <- cbind(lui_total, plants)
+#add LUI info, only to subsequantly remove ALL NAs (both from Lui and plants)
+p_plant <- cbind(lui_total, plant_only)
 
 #remove NAs
-p_plants <- na.omit(p_plants)
+p_plant <- na.omit(p_plant)
 
-#write p_plants
-write.table(p_plants, "data/p_plants.txt", row.names = FALSE, sep = "\t")
+#save p_plant
+write.table(p_plant, "data/p_plant.txt", row.names = TRUE, sep = "\t")
+
+#leave only the plant columns again for further analysis (combos)
+p_plant_only <- p_plant[, -c(1:4)]
+
+#write p_plant_only
+write.table(p_plant_only, "data/p_plant_only.txt", row.names = FALSE, sep = "\t")
 
 #clean a bit
-rm(plants, i, j)
+rm(plants, plant_only, p_plant_only, i, j)
 ```
 
 # Data description for decision-making
@@ -171,13 +172,13 @@ plants <- plants[plants$Year != 2016, ]
 
 #remove info columns
 #format is the same order as LUI, so we'll later merge with LUI to have all info
-plants <- plants[-c(1:5)]
+plants <- plants[-c(1:4)]
 
 #change to presence/absence data (0 or 1)
 for (i in 1:nrow(plants)){
-  for (j in 5:ncol(plants)){
+  for (j in 1:ncol(plants)){
     if(is.na(plants[i, j])){
-      plants[i, j] <- 0
+      #do nothing
     } else {
       if (plants[i, j] > 0){
         plants[i, j] <- 1
@@ -187,7 +188,7 @@ for (i in 1:nrow(plants)){
 }
 
 #number of species per plot
-rich_full <- apply(plants[, -c(1:5)], 1, sum, na.rm = TRUE)
+rich_full <- apply(plants, 1, sum, na.rm = TRUE)
 
 #merge lui and richness
 richness_full_comm <- cbind(lui_total, rich_full)
@@ -215,7 +216,7 @@ plants <- plants[, match(names(top), names(plants))]
 names(plants) <- top.short
 
 #number of species per plot
-rich_26spp <- apply(plants[, -c(1:5)], 1, sum, na.rm = TRUE)
+rich_26spp <- apply(plants, 1, sum, na.rm = TRUE)
 
 #merge lui and richness
 richness_26spp_comm <- cbind(lui_total, rich_26spp)
@@ -288,7 +289,7 @@ ggsave(plot = lui_richness, "figures/LUI_richness.png",
        width = 7, height = 7, dpi = 320)
 
 #clean everything
-rm(list=ls()[! ls() %in% c("n_plants")])
+rm(list=ls()[! ls() %in% c("n_plants", "raw_path")])
 ```
 
 In brief, **we observe that our LUI values concentrate between 0.5 and 3.0, so we will not analyse what happens beyond this range.**
@@ -302,13 +303,10 @@ Picking which combinations we are going to use to apply the structural coexisten
 First of all, we ought to understand how well represented are the different combinations of different richness levels in our data. This way, we avoid choosing a richness level that has actually no representation in nature.
 
 ```{r saturation, fig.height = 4, fig.width = 6}
-#this chunk depends on chunk(s): restructure_plants_quanti
+#this chunk depends on chunk(s): path_and_plants
 
-#load qualitative plants
-p_plants <- read.table("data/p_plants.txt", header = TRUE, sep = "\t")
-
-#data only with the plants in columns
-p_plants_only <- p_plants[, 4:(n_plants + 3)]
+#load qualitative plants only
+p_plant_only <- read.table("data/p_plant_only.txt", header = TRUE, sep = "\t")
 
 #calculate the percentage of presence of different richness values in the data
 max_comb <- NULL
@@ -316,8 +314,8 @@ rich <- NULL
 for (i in 2:25){
   rich <- c(rich, i)
   max_comb <- c(max_comb,
-                length(which(apply(p_plants_only, 1, sum) > i))
-                / nrow(p_plants_only) * 100)
+                length(which(apply(p_plant_only, 1, sum) > i))
+                / nrow(p_plant_only) * 100)
 }
 
 #save as dataframe for plotting
@@ -336,8 +334,8 @@ saturation <- data.frame("richness" = rich, "ratio" = max_comb)
 ggsave(plot = ratio_combos, filename = "figures/ratio_combos.png",
        width = 6, height = 4, dpi = 320)
 
-#clean (except for p_plants_only, that we'll use below)
-rm(i, max_comb, rich, ratio_combos, p_plants, saturation)
+#clean (except for p_plant_only, that we'll use below)
+rm(i, max_comb, rich, ratio_combos, saturation)
 ```
 
 As can be observed, **the plot above urges us to select combinations that do not involve more than 17 plant species.**
@@ -432,49 +430,100 @@ selector <- function(df, n, threshold){
 } #end selector()
 ```
 
-And then we need to compute the function for different richness levels. This is an important step. Given that we may choose richness levels from 2 to 17, **we have decided to use the following sequence: 2, 3, 5, 7, 11 and 17 species**. In this sequence, each element is the result of the sum of the two previous elements minus one (e.g., `11 = (5 + 7) - 1`). Besides, the following piece of code should be run in a cluster of computation because it takes a long time to finish ---that's why the code is commented (annuled by `#`). In any case, note that we use the `p_plants_only` dataset and a threshold value of zero (if the combination is present at any given spot, we save it).
+And then we need to compute the function for different richness levels. This is an important step. Given that we may choose richness levels from 2 to 17, **we have decided to use the following sequence: 2, 3, 5, 7, 11 and 17 species**. In this sequence, each element is the result of the sum of the two previous elements minus one (e.g., `11 = (5 + 7) - 1`). Besides, the following piece of code should be run in a cluster of computation because it takes a long time to finish ---that's why the code is commented (annuled by `#`). In any case, note that we use the `p_plant_only` dataset and a threshold value of zero (if the combination is present at any given spot, we save it).
 
 ```{r combos_selection}
 #this chunk depends on chunk(s): saturation, function_selector
 
-##set a threshold (in %)
-#t <- 0
+#set a threshold (in %)
+t <- 0
+
+#compute and save the selected combos (TO DO IN THE CLUSTER OF COMPUTATION!)
+#combos2 <- selector(p_plant_only, n = 2, threshold = t)
+#write.table(combos2, "results/selected_combos/combos2.txt", row.names = FALSE, sep = "\t")
 #
-##compute and save the selected combos (TO DO IN THE CLUSTER OF COMPUTATION!)
-#res2 <- selector(p_plants_only, n = 2, threshold = t)
-#res3 <- selector(p_plants_only, n = 3, threshold = t)
-#res5 <- selector(p_plants_only, n = 5, threshold = t)
-#res7 <- selector(p_plants_only, n = 7, threshold = t)
-#res11 <- selector(p_plants_only, n = 11, threshold = t)
-#res17 <- selector(p_plants_only, n = 17, threshold = t)
+#combos3 <- selector(p_plant_only, n = 3, threshold = t)
+#write.table(combos3, "results/selected_combos/combos3.txt", row.names = FALSE, sep = "\t")
+#
+#combos5 <- selector(p_plant_only, n = 5, threshold = t)
+#write.table(combos5, "results/selected_combos/combos5.txt", row.names = FALSE, sep = "\t")
+#
+#combos7 <- selector(p_plant_only, n = 7, threshold = t)
+#combos11 <- selector(p_plant_only, n = 11, threshold = t)
+#combos17 <- selector(p_plant_only, n = 17, threshold = t)
 
 #clean a bit
-rm(selector, p_plants_only)
+rm(selector, p_plant_only)
 ```
 
 After running the code in the cluster, we may load the combos selected for each richness level.
 
 ```{r load_combos}
-#load combos of 2 species
-combos2 <- read.table("results/selected_combos/combos2.txt", sep = "\t", header = TRUE)
-
-#load combos of 3 species
-combos3 <- read.table("results/selected_combos/combos3.txt", sep = "\t", header = TRUE)
-
-#load combos of 5 species
-combos5 <- read.table("results/selected_combos/combos5.txt", sep = "\t", header = TRUE)
-
-##NOT READY YET --- load combos of 7 species
-#combos7 <- read.table("results/selected_combos/combos7.txt", sep = "\t", header = TRUE)
-
-##NOT READY YET --- load combos of 11 species
-#combos11 <- read.table("results/selected_combos/combos11.txt", sep = "\t", header = TRUE)
-
-#load combos of 17 species
-combos17 <- read.table("results/selected_combos/combos17.txt", sep = "\t", header = TRUE)
+##load combos of 2 species
+#combos2 <- read.table("results/selected_combos/combos2.txt", sep = "\t", header = TRUE)
+#
+##load combos of 3 species
+#combos3 <- read.table("results/selected_combos/combos3.txt", sep = "\t", header = TRUE)
+#
+##load combos of 5 species
+#combos5 <- read.table("results/selected_combos/combos5.txt", sep = "\t", header = TRUE)
+#
+###NOT READY YET --- load combos of 7 species
+##combos7 <- read.table("results/selected_combos/combos7.txt", sep = "\t", header = TRUE)
+#
+###NOT READY YET --- load combos of 11 species
+##combos11 <- read.table("results/selected_combos/combos11.txt", sep = "\t", header = TRUE)
+#
+##load combos of 17 species
+#combos17 <- read.table("results/selected_combos/combos17.txt", sep = "\t", header = TRUE)
 ```
 
 # Quantify the interaction coefficients and LUI effects
+
+```{r quantify_coefficients}
+#this chunk depends on chunk(s): path_and_plants
+library(reshape2)
+library(nlme)
+library(car)
+
+n_plants <- 26
+
+#load lui_only (values of LUI by year in columns)
+lui_only <- read.table("data/lui_tot.txt", header = TRUE, sep = "\t")
+
+#load LUI, plot and year information from q_plants.txt
+lui_info <- read.table("data/q_plants.txt", header = TRUE, sep = "\t")[1:4]
+
+#load only plants from q_plants.txt
+q_plants <- read.table("data/q_plants.txt", header = TRUE, sep = "\t")[5:n_plants]
+
+#split by year and convert into a list
+pyear <- split(q_plants, lui_info$Year)
+
+#
+pchange <- list()
+pchange.logit <- list()
+pchange.log <- list()
+pchange.relative <- list()
+
+
+# This is to prepare the database in order to conduct the analyses where t+1 will be compared to t
+for(i in 1:(length(pyear) - 1)){
+  xx <- pyear[[i + 1]]
+  names(xx) <- paste(names(xx), "_delta", sep = "")
+  xx2 <- cbind("LUI" = lui_only[, i], xx)
+  pchange[[i]] <- cbind(xx2, pyear[[i]])
+}
+
+pchange_all <- do.call("rbind", pchange)
+Year_change <- paste(2008:2014, 2009:2015, sep = "to")
+pchange.all2 <- data.frame("Plot" = rep(unique(plants$Plot), 8), "Site" = strtrim(unique(plants$Plot), 1), "Year_change" = rep(Year_change, each = 150), "Yeart" = rep(1:8, each = 150), pchange.all)
+yy <- names(pchange.all2)[grep("delta", names(pchange.all2))]
+
+
+  
+  
+```
 
 
 
