@@ -521,7 +521,8 @@ pchange.all2 <- data.frame("Plot" = rep(unique(plants$Plot), 8), "Site" = strtri
 yy <- names(pchange.all2)[grep("delta", names(pchange.all2))]
 
 
-  
+
+
   
 ```
 
