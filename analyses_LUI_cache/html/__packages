@@ -2,3 +2,12 @@ base
 ggplot2
 magrittr
 ggpubr
+reshape2
+nlme
+carData
+car
+mvtnorm
+foreach
+iterators
+doParallel
+MASS

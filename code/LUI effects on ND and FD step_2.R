@@ -5,9 +5,10 @@
   
   #1.Obtaining combinations to calculate niche and fitness diff.----
   #loading average values
-  intrinsic <- read.table("results/intrinsic_site_lui_average_lme_50.csv", header = TRUE, sep = ",", row.names = 1)
-  alpha <- as.matrix(read.table("results/interaction_matrix_lme_average_50.csv", header = TRUE, sep = ",", row.names = 1))
-  lui_modify_alpha <- as.matrix(read.table("results/lui_matrix_lme_average_50.csv", header = TRUE, sep = ",", row.names = 1))
+  intrinsic <- read.table("results/OG_results/intrinsic_site_lui_average_lme_50.csv", header = TRUE, sep = ",", row.names = 1)
+  alpha <- as.matrix(read.table("results/OG_results/interaction_matrix_lme_average_50.csv", header = TRUE, sep = ",", row.names = 1))
+  lui_modify_alpha <- as.matrix(read.table("results/OG_results/lui_matrix_lme_average_50.csv", header = TRUE, sep = ",", row.names = 1))
+  
   top50.short <- c("Poa_tri", "Poa_pra", "Alo_pra", "Dac_glo", "Tri_rep", "Tar_off", "Lol_per", "Arr_ela", 
                    "Fes_rub", "Fes_pra", "Tri_fla", "Ely_rep", "Tri_pra", "Bro_ere", "Ran_rep", "Bro_hor", 
                    "Ran_acr", "Pla_lan", "Ach_mil", "Gal_mol", "Her_sph", "Ant_syl", "Hol_lan", "Hel_pub",
@@ -53,7 +54,7 @@
       lui_alpha[[i]] <- alpha + lui_modify_alpha*lui[i]
       lui_alpha[[i]] <- lui_alpha[[i]][which(rownames(lui_alpha[[i]]) %in% row.names(lui_intrinsic_positive[[i]])),
                                        which(colnames(lui_alpha[[i]]) %in% row.names(lui_intrinsic_positive[[i]]))]
-      hh[[i]] <- row.names(subset(lui_alpha[[i]], diag(lui_alpha[[i]])<0)) #we hold those with negative intra
+      hh[[i]] <- row.names(subset(lui_alpha[[i]], diag(lui_alpha[[i]]) < 0)) #we hold those with negative intra
       lui_alpha[[i]] <- lui_alpha[[i]][which(rownames(lui_alpha[[i]]) %in% hh[[i]]),
                                        which(colnames(lui_alpha[[i]]) %in% hh[[i]])]
   }
@@ -177,14 +178,14 @@ results_coex <- foreach (i = 1:length(combos_lui2), .packages = "mvtnorm") %dopa
       mm <- lui_alpha[[i]][which(rownames(lui_alpha[[i]]) %in% ll), which(colnames(lui_alpha[[i]]) %in% ll)]
       mm <- -1*mm #this is because intras has to be positive. 
       ii <- subset(lui_intrinsic_positive[[i]], rownames(lui_intrinsic_positive[[i]]) %in% ll)
-      results_combo[h,1] <- 10^Omega(mm) # this is niche differences
-      results_combo[h,2] <- theta(mm, ii[,1]) # this is fitness differences
+      results_combo[h, 1] <- 10^Omega(mm) # this is niche differences
+      results_combo[h, 2] <- theta(mm, ii[,1]) # this is fitness differences
       co <- compute_overlap(mm,1000)
-      results_combo[h,3] <- co$overlap # this is community overlap
-      results_combo[h,4] <- co$Omega - co$Omega_all # this is community differential
-      results_combo[h,5] <- test_feasibility(mm,ii[,1]) #this is whether all speceis can coexist. 
-      results_combo[h,6] <- sum(test_feasibility_pairs(mm,ii[,1])$feasibility)/length(test_feasibility_pairs(mm,ii[,1])$feasibility) # this is whether pairs do not coexist but the multispecies assemblage does
-      results_combo[h,7] <- unique(lui_intrinsic_positive[[i]][,2])
+      results_combo[h, 3] <- co$overlap # this is community overlap
+      results_combo[h, 4] <- co$Omega - co$Omega_all # this is community differential
+      results_combo[h, 5] <- test_feasibility(mm,ii[,1]) #this is whether all speceis can coexist. 
+      results_combo[h, 6] <- sum(test_feasibility_pairs(mm,ii[,1])$feasibility)/length(test_feasibility_pairs(mm,ii[,1])$feasibility) # this is whether pairs do not coexist but the multispecies assemblage does
+      results_combo[h, 7] <- unique(lui_intrinsic_positive[[i]][,2])
     }
     results[[j]] <- results_combo
     print(paste(i,j))

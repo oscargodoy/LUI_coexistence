@@ -19,20 +19,20 @@ lui.only2 <- lui.only[, -c(1:2)] ## remove 2006 and 2007
 plant.only <- plants[-c(1:4)]
 
 ### top50 --- select the 51 most common plant species
-top50 <- rev(sort(apply(plant.only, 2, mean, na.rm = TRUE)))[1:26]
-top50.short <- c("Poa_tri", "Poa_pra", "Alo_pra", "Dac_glo", "Tri_rep", "Tar_off",
+top <- rev(sort(apply(plant.only, 2, mean, na.rm = TRUE)))[1:26]
+top.short <- c("Poa_tri", "Poa_pra", "Alo_pra", "Dac_glo", "Tri_rep", "Tar_off",
                "Lol_per", "Arr_ela", "Fes_rub", "Fes_pra", "Tri_fla", "Ely_rep",
                "Tri_pra", "Ran_rep", "Bro_ere", "Ran_acr", "Bro_hor", "Pla_lan",
                "Ach_mil", "Ant_syl", "Her_sph", "Gal_mol", "Hol_lan", "Hel_pub",
                "Car_hir", "Bra_pin")
 
-plants2 <- plants[, match(names(top50), names(plants))] #dataset with the 51 most common plant species
+plants2 <- plants[, match(names(top), names(plants))] #dataset with the 51 most common plant species
 
-Rest <- apply(plant.only[, -match(names(top50), names(plant.only))], 1, sum, na.rm = TRUE) #sum all the other plant species per row
+Rest <- apply(plant.only[, -match(names(top), names(plant.only))], 1, sum, na.rm = TRUE) #sum all the other plant species per row
 
 plants3 <- cbind(plants2, Rest) #add a column with the sum of the non-selected plant species
 plants3 <- plants3 / apply(plants3, 1, sum) # to rscale to no more than 100%
-names(plants3)[1:26] <- top50.short #give them standard names
+names(plants3)[1:26] <- top.short #give them standard names
   
 
 pyear <- split(plants3, plants$Year) #create a different dataset within a list for each year
@@ -55,16 +55,16 @@ Year_change <- paste(2008:2015, 2009:2016, sep = "to")
 pchange.all2 <- data.frame("Plot" = rep(unique(plants$Plot), 8), "Site" = strtrim(unique(plants$Plot), 1), "Year_change" = rep(Year_change, each = 150), "Yeart" = rep(1:8, each = 150), pchange.all)
 yy <- names(pchange.all2)[grep("delta", names(pchange.all2))]
 
-#Let's plot an example to see how the data looks like 
-par(mfrow=c(2, 2))
-plot(pchange.all2$Poa_tri, pchange.all2$Poa_pra_delta, xlab = "P. cover Poa_tri_year_t",
-     ylab = "P. cover Poa_pra_yeart+1")
-plot(pchange.all2$Poa_pra, pchange.all2$Poa_pra_delta, xlab = "P. cover Poa_pra_year_t",
-     ylab = "P. cover Poa_pra_yeart+1")
-plot(pchange.all2$Alo_pra, pchange.all2$Alo_pra_delta, xlab = "P. cover Alo_pra_year_t",
-     ylab = "P. cover Alo_pra_yeart+1")
-plot(pchange.all2$Dac_glo, pchange.all2$Dac_glo_delta, xlab = "P. cover Dac_glo_year_t",
-     ylab = "P. cover Dac_glo_yeart+1")
+##Let's plot an example to see how the data looks like
+#par(mfrow=c(2, 2))
+#plot(pchange.all2$Poa_tri, pchange.all2$Poa_pra_delta, xlab = "P. cover Poa_tri_year_t",
+#     ylab = "P. cover Poa_pra_yeart+1")
+#plot(pchange.all2$Poa_pra, pchange.all2$Poa_pra_delta, xlab = "P. cover Poa_pra_year_t",
+#     ylab = "P. cover Poa_pra_yeart+1")
+#plot(pchange.all2$Alo_pra, pchange.all2$Alo_pra_delta, xlab = "P. cover Alo_pra_year_t",
+#     ylab = "P. cover Alo_pra_yeart+1")
+#plot(pchange.all2$Dac_glo, pchange.all2$Dac_glo_delta, xlab = "P. cover Dac_glo_year_t",
+#     ylab = "P. cover Dac_glo_yeart+1")
 
 
 #perform the modelling with lme and temporal autocorrelation
@@ -100,7 +100,7 @@ for(i in 1:length(coef.list)){
 
 yy2 <- gsub("_delta", "", yy)
 yy2 <- yy2[-c(26)] # to remove name "rest"
-diag(inter.mat) <- diag(inter.mat) - 1 #because assuming that the 45 degrees slope means no change.
+diag(inter.mat) <- diag(inter.mat) - 1 #assuming that the 45 degrees slope means no change
 row.names(inter.mat) <- yy2
 colnames(inter.mat) <- yy2
 row.names(lui.mat) <- yy2
@@ -118,6 +118,8 @@ diag(inter.mat) > 0
 write.csv(inter.mat, "results/interaction_matrix_lme_average_26.csv")
 write.csv(lui.mat, "results/lui_matrix_lme_average_26.csv")
 write.csv(intrinsic.site.lui, "results/intrinsic_site_lui_average_lme_26.csv")
+
+
 
 
 #We also calculate errors----
@@ -151,7 +153,7 @@ colnames(intrinsic.site.lui.error) <- c("Intrinsic", "LUI")
 write.csv(inter.mat.error, "results/interaction_matrix_lme_std_error_26.csv")
 write.csv(lui.mat.error, "results/lui_matrix_lme_std_error_26.csv")
 write.csv(intrinsic.site.lui.error, "results/intrinsic_site_lui_std_error_lme_26.csv")
-#From here we can calculate latter 95CI intervals multiplying by ±1.96. 
+#From here we can calculate latter 95CI intervals multiplying by ±1.96
 
 
 

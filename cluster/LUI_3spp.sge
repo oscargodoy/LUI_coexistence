@@ -1,0 +1,12 @@
+#$ -S /bin/bash
+#$ -N LUI_3spp
+#$ -wd /home/rrodriguez/R/LUI
+#$ -o LUI_3spp.salida
+#$ -e LUI_3spp.err
+#$ -q media_multicore
+#$ -pe smp 24
+#$ -l virtual_free=1G
+#
+export OMP_NUM_THREADS=$NSLOTS
+module load R-3.5.2-Bioconductor
+R --slave --no-save < LUI_cluster_3spp.R
