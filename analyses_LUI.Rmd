@@ -14,7 +14,9 @@ knitr::opts_chunk$set(cache = TRUE)
 
 # Prepare the data
 
-First of all, we need to re-structure the database. We will only use data from 2008 to 2015. For this period, we select the 26 most common plant species for further analyses. The reason why we select a 26 species community is because, at this moment, it is impossible to compute the analyses for a richer community (e.g. 50 species) due to computation limitations. To give an example, computing all posible combinations of 11 species in a 50 species community would take ca. `r round(0.003101254 * choose(50, 11) / 60 / 24 / 365)` years, while computing this for a 26 species community takes ca. `r round(0.003101254 * (choose(26, 11)) / 60 / 24)` days (there are ca. `r round(choose(50, 11) / choose(26, 11))` times more possible combinations for the 50 species community).
+First of all, we need to re-structure the database. We will only use data from 2008 to 2015. For this period, we select the 26 most common plant species. The reason why we select a 26 species community is because, at this moment, it is impossible to compute the analyses for a richer community (e.g. 50 species) due to computation limitations. To give an example, computing all posible combinations of 11 species in a 50 species community would take ca. `r round(0.003101254 * choose(50, 11) / 60 / 24 / 365)` years, while computing this for a 26 species community takes ca. `r round(0.003101254 * (choose(26, 11)) / 60 / 24)` days (there are ca. `r round(choose(50, 11) / choose(26, 11))` times more possible combinations for the 50 species community).
+
+What it is important to notice, though, is that we will reduce the community to 26 for computing the structural coexistence outputs (i.e., after obtaining the inter- and intra-specific interaction coefficients). Why? Because the proper approach in a community with so many species as ours is to obtian the coefficients with the maximum number os species possible (we will use 50) and, then, reduce to the desired species number. That's the path we are going to follow here.
 
 ## Land Use Intensity (LUI)
 
@@ -25,10 +27,10 @@ First of all, we define the path to load the raw data and the number of plants w
 raw_path <- "data/raw_data"
 
 #number of plants in the community
-n_plants <- 26
+n_plants <- 50
 ```
 
-And then we start by the LUI dataset:
+And then we start by the LUI dataset. We remove the undesired years: 2006 and 2007. Then, we re-structure it.
 
 ```{r restructure_lui}
 #load LUI data
@@ -64,7 +66,7 @@ rm(lui, lui_tot, lui.only, lui.only2, pp, lu, yy)
 
 And continue with the plants dataset:
 
-In this case, though, we will save two different data files. The first one that we obtain corresponds to the original data for the 26 most common species in the different plots, with a final column representing the cumulative data for all other species present at each plot, which we will call `rest`. Note that we also re-scale the data to avoid having values over 100%. **We will use this to quantify the intra- and inter-specific interaction coefficients for all plant species.**
+In this case, though, we will save two different data files. The first one that we obtain corresponds to the original data for the 50 most common species in the different plots, with a final column representing the cumulative data for all other species present at each plot, which we will call `rest`. Note that we also re-scale the data to avoid having values over 100%. **We will use this to quantify the intra- and inter-specific interaction coefficients for all plant species.**
 
 ```{r restructure_plants_quanti}
 #this chunk depends on chunk(s): restructure_lui
@@ -87,7 +89,11 @@ top.short <- c("Poa_tri", "Poa_pra", "Alo_pra", "Dac_glo", "Tri_rep", "Tar_off",
                "Lol_per", "Arr_ela", "Fes_rub", "Fes_pra", "Tri_fla", "Ely_rep",
                "Tri_pra", "Ran_rep", "Bro_ere", "Ran_acr", "Bro_hor", "Pla_lan",
                "Ach_mil", "Ant_syl", "Her_sph", "Gal_mol", "Hol_lan", "Hel_pub",
-               "Car_hir", "Bra_pin")
+               "Car_hir", "Bra_pin", "Pha_aru", "Ant_odo", "Ver_cha", "Fes_ovi",
+               "Rum_ace", "Des_ces", "Phl_pra", "Agr_sto", "Cyn_cri", "Cir_ole",
+               "Cre_bie", "Cer_hol", "Pla_med", "Thy_pul", "Urt_dio", "Lol_mul",
+               "Cir_arv", "Ran_bul", "Tri_dub", "Lot_cor", "Car_car", "Leo_his",
+               "Vic_sep", "Med_lup")
 
 #sum all the other plant species per row
 rest <- apply(plant_only[, -match(names(top), names(plant_only))], 1, sum, na.rm = TRUE)
@@ -117,6 +123,7 @@ The second one corresponds to the presence or absence of the 26 most common plan
 
 ```{r restructure_plants_qualit}
 #this chunk depends on chunk(s): restructure_lui, restructure_plants_quanti
+plant_only <- plant_only[, c(1:26)]
 
 #change to presence/absence data (0 or 1)
 for (i in 1:nrow(plant_only)){
@@ -208,12 +215,13 @@ Then, we apply an equivalent procedure to obtain the richness by datapoint of ou
 
 ```{r lui_richness_26spp_comm}
 #this chunk depends on chunk(s): restructure_lui, lui_richness_full_comm
+community <- 26 #species
 
 #dataset with the most common plant species
-plants <- plants[, match(names(top), names(plants))]
+plants <- plants[, match(names(top[1:community]), names(plants))]
 
 #give them standard short names
-names(plants) <- top.short
+names(plants) <- top.short[1:community]
 
 #number of species per plot
 rich_26spp <- apply(plants, 1, sum, na.rm = TRUE)
@@ -461,103 +469,114 @@ rm(selector, p_plant_only)
 
 ## Average effects
 
-At this point, we need to estimate the interaction coefficients and LUI effects. We want to obtain an interaction matrix between all 26 species without the effects of LUI and the effects of LUI, plus the intrinsic growth rate for all the species. **NOTE FOR MYSELF: I NEED TO ADD COMMENTARIES TO EXPLAIN THE STEPS IN THIS PIECE OF CODE!** 
+At this point, we need to estimate the interaction coefficients and LUI effects. We want to obtain an interaction matrix between all **51 species** without the effects of LUI and with the effects of LUI, plus the intrinsic growth rate for all the species. **NOTE FOR MYSELF: I NEED TO ADD COMMENTARIES TO EXPLAIN THE STEPS IN THIS PIECE OF CODE!**
 
 ```{r quantify_coefficients, warning = FALSE, message = FALSE}
-#this chunk depends on chunk(s): path_and_plants
+## IN ORDER TO ACCOUNT FOR TEMPORAL AUTOCORRELATION.
+rm(list=ls())
 library(reshape2)
 library(nlme)
 library(car)
 
-#load plant data
 plants <- read.csv("data/raw_data/BE.plants08.16.csv", header = TRUE)
+plants <- plants[plants$Year != 2016, ] #remove data from 2016 because there is no LUI data
 
-#load LUI data
-lui <- read.csv("data/raw_data/LUI06_15.csv", header  = TRUE)
+lui <- read.csv("data/raw_data/LUI06_15.csv", header = TRUE)
 
-#stick with LUI at different years
 lui.only <- lui[, grep("LUI", names(lui))]
 lui.only2 <- lui.only[, -c(1:2)] ## remove 2006 and 2007
 
-#leave only plant species' columns
 plant.only <- plants[-c(1:4)]
 
-### top50 --- select the 51 most common plant species
-top <- rev(sort(apply(plant.only, 2, mean, na.rm = TRUE)))[1:26]
-top.short <- c("Poa_tri", "Poa_pra", "Alo_pra", "Dac_glo", "Tri_rep", "Tar_off",
-               "Lol_per", "Arr_ela", "Fes_rub", "Fes_pra", "Tri_fla", "Ely_rep",
-               "Tri_pra", "Ran_rep", "Bro_ere", "Ran_acr", "Bro_hor", "Pla_lan",
-               "Ach_mil", "Ant_syl", "Her_sph", "Gal_mol", "Hol_lan", "Hel_pub",
-               "Car_hir", "Bra_pin")
+### top50
+top50 <- rev(sort(apply(plant.only, 2, mean, na.rm = TRUE)))[1:51]
+top50.short <- c("Poa_tri", "Poa_pra", "Alo_pra", "Dac_glo", "Tri_rep", "Tar_sp",
+                 "Lol_per", "Arr_ela", "Fes_rub", "Fes_pra", "Tri_fla", "Ely_rep",
+                 "Tri_pra", "Ran_rep", "Bro_ere", "Ran_acr", "Bro_hor", "Pla_lan",
+                 "Ach_mil", "Ant_syl", "Her_sph", "Gal_mol", "Hol_lan", "Hel_pub",
+                 "Car_hir", "Bra_pin", "Pha_aru", "Ant_odo", "Ver_cha", "Fes_ovi",
+                 "Rum_ace", "Des_ces", "Phl_pra", "Agr_sto", "Cyn_cri", "Cir_ole",
+                 "Cre_bie", "Cer_hol", "Pla_med", "Thy_pul", "Urt_dio", "Lol_mul",
+                 "Cir_arv", "Ran_bul", "Tri_dub", "Lot_cor", "Car_car", "Leo_his",
+                 "Vic_sep", "Med_lup", "Pru_sp")
 
-plants2 <- plants[, match(names(top), names(plants))] #dataset with the most common plant species
+plants2 <- plants[,match(names(top50), names(plants))]
 
-Rest <- apply(plant.only[, -match(names(top), names(plant.only))],
-              1, sum, na.rm = TRUE) #sum all the other plant species per row
+Rest <- apply(plant.only[, -match(names(top50), names(plant.only))], 1, sum,na.rm=T)
 
-plants3 <- cbind(plants2, Rest) #add a column with the sum of the non-selected plant species
-plants3 <- plants3 / apply(plants3, 1, sum) # to rscale to no more than 100%
-names(plants3)[1:26] <- top.short #give them standard names
-  
+plants3 <- cbind(plants2, Rest)
+plants3 <- plants3/apply(plants3, 1, sum) # to rscale to no more than 100%
+names(plants3)[1:51] <- top50.short
 
-pyear <- split(plants3, plants$Year) #create a different dataset within a list for each year
+pyear <- split(plants3, plants$Year)
 pchange <- list()
 pchange.logit <- list()
 pchange.log <- list()
 pchange.relative <- list()
 
-
 # This is to prepare the database in order to conduct the analyses where t+1 will be compared to t
-for(i in 1:(length(pyear) - 1)){
-  xx <- pyear[[i + 1]]
-  names(xx) <- paste(names(xx), "_delta", sep = "")
-  xx2 <- cbind("LUI" = lui.only2[, i], xx)
+for(i in 1:(length(pyear)-1)){
+  xx <- pyear[[i+1]]
+  names(xx) <- paste(names(xx), "_delta",sep = "")
+  xx2 <- cbind("LUI" = lui.only2[,i], xx)
   pchange[[i]] <- cbind(xx2, pyear[[i]])
 }
 
 pchange.all <- do.call("rbind", pchange)
-Year_change <- paste(2008:2015, 2009:2016, sep = "to")
-pchange.all2 <- data.frame("Plot" = rep(unique(plants$Plot), 8),
+Year_change <- paste(2008:2014, 2009:2015, sep="to")
+pchange.all2 <- data.frame("Plot" = rep(unique(plants$Plot), 7),
                            "Site" = strtrim(unique(plants$Plot), 1),
                            "Year_change" = rep(Year_change, each = 150),
-                           "Yeart" = rep(1:8, each = 150), pchange.all)
+                           "Yeart" = rep(1:7, each = 150), pchange.all) 
 yy <- names(pchange.all2)[grep("delta", names(pchange.all2))]
 
+#Let's plot a couple of examples to see how the data looks like 
+par(mfrow=c(2,2))
+plot(pchange.all2$Poa_tri, pchange.all2$Poa_pra_delta, xlab="P. cover Poa_tri_year_t",
+     ylab = "P. cover Poa_pra_yeart+1")
+plot(pchange.all2$Poa_pra, pchange.all2$Poa_pra_delta, xlab="P. cover Poa_pra_year_t",
+     ylab = "P. cover Poa_pra_yeart+1")
+plot(pchange.all2$Alo_pra, pchange.all2$Alo_pra_delta, xlab="P. cover Alo_pra_year_t",
+     ylab = "P. cover Alo_pra_yeart+1")
+plot(pchange.all2$Dac_glo, pchange.all2$Dac_glo_delta, xlab="P. cover Dac_glo_year_t",
+     ylab = "P. cover Dac_glo_yeart+1")
+
 #perform the modelling with lme and temporal autocorrelation
+
 lCtr <- lmeControl(maxIter = 500, msMaxIter = 500, tolerance = 1e-6, niterEM = 250, msMaxEval = 200)
 
-##running all the models for the 51 sps. Site does not improve the model, so I have removed it
-## I haven't included weight factors either because they don't improve the model
+##running all the models for the 51 sps. Site does not improve the model, so I have removed it. 
+## I haven't also included weight factors because does not either improve the model. 
 mlist <- list()
-for(i in 1:26){
-  mlist[[i]] <- lme(as.formula(paste(yy[i], " ~ LUI*(", paste(top.short, collapse = "+"),")")),
-                    data = pchange.all2, random = ~1|Plot/Site, control = lCtr,
-                    correlation = corAR1(form = ~Yeart), method = 'REML', na.action = na.omit)
-} #IT TAKES SOME TIME TO RUN
+for(i in 1:51){
+  mlist[[i]] <- lme(as.formula(paste(yy[i], " ~ LUI*(", paste(top50.short, collapse= "+"), ")")), data = pchange.all2, 
+                random = ~1|Plot/Site, control = lCtr, correlation=corAR1(form = ~Yeart), method = 'REML', na.action = na.omit)
+}
 
 coef.list <- lapply(mlist, function(x)summary(x)$coef$fixed)
 
 #the miscelaneous species "REST" is not saved
-inter.mat <- matrix(nrow = length(yy) - 1, ncol = length(yy) - 1) #matrix of species interactions
-lui.mat <- matrix(nrow = length(yy) - 1, ncol = length(yy) - 1) #matrix of how LUI modify pairwise interactions
-intrinsic.site.lui <- matrix(nrow = length(yy) - 1, ncol = 2) #matrix of intrinsic ability to growth and how LUI modifies it
+inter.mat <- matrix(nrow=length(yy) - 1, ncol=length(yy) - 1) #matrix of species interactions
+lui.mat <- matrix(nrow=length(yy) - 1, ncol=length(yy) - 1) #matrix of how LUI modify pairwise interactions
+intrinsic.site.lui <- matrix(nrow=length(yy) - 1, ncol = 2) #matrix of intrinsic ability to growth and how LUI modifies it
 
 for(i in 1:length(coef.list)){
+
   cc <- coef.list[[i]] ## extract coefficients
-  
+
   cc2 <- cc[-c(1:2)]
-  cc3 <- cc2[c(1:26)]
-  cc4 <- cc2[27:52]
+  cc3 <- cc2[c(1:51)]
+  cc4 <- cc2[52:102]
   cc5 <- cc[1:2]
-  
+
   inter.mat[i,] <- cc3
   lui.mat[i,] <- cc4
-  intrinsic.site.lui[i,] <- cc5
+  intrinsic.site.lui[i,]<- cc5
 }
 
 yy2 <- gsub("_delta", "", yy)
-yy2 <- yy2[-c(length(yy2))] # to remove name "rest"
-diag(inter.mat) <- diag(inter.mat) - 1 #assuming that the 45 degrees slope means no change
+yy2 <- yy2[-c(52)] # to remove name "rest"
+diag(inter.mat)<- diag(inter.mat) - 1 #because assuming that the 45 degrees slope means no change
 row.names(inter.mat) <- yy2
 colnames(inter.mat) <- yy2
 row.names(lui.mat) <- yy2
@@ -567,53 +586,178 @@ colnames(intrinsic.site.lui) <- c("Intrinsic", "LUI")
 
 #check whether diagonal values of all species are negative, if not these species needs to be removed in further analyses
 #of structural stability as the method does not handle facilitation effects for intraspecific effects
-neg_diag <- names(which((diag(inter.mat) > 0) == TRUE))
-#in three species this is the case but might change to more or less depending of the,, LUI's effect
+neg_diag <- names(which((diag(inter.mat) < 0) == TRUE))
+#in three species this are the case but might change to more or less depending of the LUI's effect
 
 #Save all these matrices and then go to the structural stability approach in another R file
-write.csv(inter.mat, "results/interaction_matrix_lme_average_26.csv")
-write.csv(lui.mat, "results/lui_matrix_lme_average_26.csv")
-write.csv(intrinsic.site.lui, "results/intrinsic_site_lui_average_lme_26.csv")
+write.table(inter.mat, "results/interaction_matrix_lme_average_51.txt", row.names = TRUE, sep = "\t")
+write.table(lui.mat, "results/lui_matrix_lme_average_51.txt", row.names = TRUE, sep = "\t")
+write.table(intrinsic.site.lui, "results/intrinsic_site_lui_average_lme_51.txt", row.names = TRUE, sep = "\t")
+
+inter.mat26 <- inter.mat[1:26, 1:26]
+lui.mat26 <- inter.mat[1:26, 1:26]
+intrinsic.site.lui26 <- intrinsic.site.lui[1:26, ]
+
+#Save all these matrices and then go to the structural stability approach in another R file
+write.table(inter.mat26, "results/interaction_matrix_lme_average_26spp.txt", row.names = TRUE, sep = "\t")
+write.table(lui.mat26, "results/lui_matrix_lme_average_26spp.txt", row.names = TRUE, sep = "\t")
+write.table(intrinsic.site.lui26, "results/intrinsic_site_lui_average_lme_26spp.txt", row.names = TRUE, sep = "\t")
+
+##alarm
+#source("code/beep.R") #warning to know
+```
+
+
+```{r past_method}
+##number of plants
+#n_plants <- 26
+#
+##this chunk depends on chunk(s): path_and_plants
+#library(reshape2)
+#library(nlme)
+#library(car)
+#
+##load plant data
+#plants <- read.csv("data/raw_data/BE.plants08.16.csv", header = TRUE)
+#
+##load LUI data
+#lui <- read.csv("data/raw_data/LUI06_15.csv", header  = TRUE)
+#
+##stick with LUI at different years
+#lui.only <- lui[, grep("LUI", names(lui))]
+#lui.only2 <- lui.only[, -c(1:2)] ## remove 2006 and 2007
+#
+##leave only plant species' columns
+#plant.only <- plants[-c(1:4)]
+#
+#### top50 --- select the 51 most common plant species
+#top <- rev(sort(apply(plant.only, 2, mean, na.rm = TRUE)))[1:n_plants]
+#
+#
+#plants2 <- plants[, match(names(top), names(plants))] #dataset with the most common plant species
+#
+#Rest <- apply(plant.only[, -match(names(top), names(plant.only))],
+#              1, sum, na.rm = TRUE) #sum all the other plant species per row
+#
+#plants3 <- cbind(plants2, Rest) #add a column with the sum of the non-selected plant species
+#plants3 <- plants3 / apply(plants3, 1, sum) # to rscale to no more than 100%
+#names(plants3)[1:n_plants] <- top.short #give them standard names
+#  
+#
+#pyear <- split(plants3, plants$Year) #create a different dataset within a list for each year
+#pchange <- list()
+#pchange.logit <- list()
+#pchange.log <- list()
+#pchange.relative <- list()
+#
+#
+## This is to prepare the database in order to conduct the analyses where t+1 will be compared to t
+#for(i in 1:(length(pyear) - 1)){
+#  xx <- pyear[[i + 1]]
+#  names(xx) <- paste(names(xx), "_delta", sep = "")
+#  xx2 <- cbind("LUI" = lui.only2[, i], xx)
+#  pchange[[i]] <- cbind(xx2, pyear[[i]])
+#}
+#
+#pchange.all <- do.call("rbind", pchange)
+#Year_change <- paste(2008:2015, 2009:2016, sep = "to")
+#pchange.all2 <- data.frame("Plot" = rep(unique(plants$Plot), 8),
+#                           "Site" = strtrim(unique(plants$Plot), 1),
+#                           "Year_change" = rep(Year_change, each = 150),
+#                           "Yeart" = rep(1:8, each = 150), pchange.all)
+#yy <- names(pchange.all2)[grep("delta", names(pchange.all2))]
+#
+##perform the modelling with lme and temporal autocorrelation
+#lCtr <- lmeControl(maxIter = 500, msMaxIter = 500, tolerance = 1e-6, niterEM = 250, msMaxEval = 200)
+#
+###running all the models for the 51 sps. Site does not improve the model, so I have removed it
+### I haven't included weight factors either because they don't improve the model
+#mlist <- list()
+#for(i in 1:n_plants){
+#  mlist[[i]] <- lme(as.formula(paste(yy[i], " ~ LUI*(", paste(top.short, collapse = "+"),")")),
+#                    data = pchange.all2, random = ~1|Plot/Site, control = lCtr,
+#                    correlation = corAR1(form = ~Yeart), method = 'REML', na.action = na.omit)
+#} #IT TAKES SOME TIME TO RUN
+#
+#( coef.list <- lapply(mlist, function(x)summary(x)$coef$fixed) )
+#
+##the miscelaneous species "REST" is not saved
+#inter.mat <- matrix(nrow = length(yy) - 1, ncol = length(yy) - 1) #matrix of species interactions
+#lui.mat <- matrix(nrow = length(yy) - 1, ncol = length(yy) - 1) #matrix of how LUI modify pairwise interactions
+#intrinsic.site.lui <- matrix(nrow = length(yy) - 1, ncol = 2) #matrix of intrinsic ability to growth and how LUI modifies it
+#
+#for(i in 1:length(coef.list)){
+#  cc <- coef.list[[i]] ## extract coefficients
+#  
+#  cc2 <- cc[-c(1:2)]
+#  cc3 <- cc2[c(1:26)]
+#  cc4 <- cc2[27:52]
+#  cc5 <- cc[1:2]
+#  
+#  inter.mat[i,] <- cc3
+#  lui.mat[i,] <- cc4
+#  intrinsic.site.lui[i,] <- cc5
+#}
+#
+#yy2 <- gsub("_delta", "", yy)
+#yy2 <- yy2[-c(length(yy2))] # to remove name "rest"
+#diag(inter.mat) <- diag(inter.mat) - 1 #assuming that the 45 degrees slope means no change
+#row.names(inter.mat) <- yy2
+#colnames(inter.mat) <- yy2
+#row.names(lui.mat) <- yy2
+#colnames(lui.mat) <- yy2
+#row.names(intrinsic.site.lui) <- yy2
+#colnames(intrinsic.site.lui) <- c("Intrinsic", "LUI")
+#
+##check whether diagonal values of all species are negative, if not these species needs to be removed in further analyses
+##of structural stability as the method does not handle facilitation effects for intraspecific effects
+#neg_diag <- names(which((diag(inter.mat) < 0) == TRUE))
+##in three species this is the case but might change to more or less depending of the,, LUI's effect
+#
+##Save all these matrices and then go to the structural stability approach in another R file
+#write.csv(inter.mat, "results/interaction_matrix_lme_average_26.csv")
+#write.csv(lui.mat, "results/lui_matrix_lme_average_26.csv")
+#write.csv(intrinsic.site.lui, "results/intrinsic_site_lui_average_lme_26.csv")
 ```
 
 **The species "`r neg_diag`" has/have negative diagonal values (i.e. intraspecific effects).**
 
 ## Errors
 
-Now, we obtain the errors from the linear model. **NOTE FOR MYSELF: I NEED TO ADD COMMENTARIES TO EXPLAIN THE STEPS IN THIS PIECE OF CODE!**
+**UNDONE UNTIL TALKING TO OSCAR.** Now, we obtain the errors from the linear model. **NOTE FOR MYSELF: I NEED TO ADD COMMENTARIES TO EXPLAIN THE STEPS IN THIS PIECE OF CODE!**
 
 ```{r errors lm}
-coef.list.error <- lapply(mlist, function(x)summary(x)$tTable[, 2]) #column two correspond to std error
-
-#the miscelaneous species "REST" is not saved
-inter.mat.error <- matrix(nrow = length(yy) - 1, ncol = length(yy) - 1)
-lui.mat.error <- matrix(nrow = length(yy) - 1, ncol = length(yy) - 1)
-intrinsic.site.lui.error <- matrix(nrow = length(yy) - 1, ncol = 2)
-
-for(i in 1:length(coef.list.error)){
-  cc <- coef.list.error[[i]] ## extract coefficients
-  
-  cc2 <- cc[-c(1:2)]
-  cc3 <- cc2[c(1:26)]
-  cc4 <- cc2[27:52]
-  cc5 <- cc[1:2]
-  
-  inter.mat.error[i,] <- cc3
-  lui.mat.error[i,] <- cc4
-  intrinsic.site.lui.error[i,] <- cc5
-}
-
-row.names(inter.mat.error) <- yy2
-colnames(inter.mat.error) <- yy2
-row.names(lui.mat.error) <- yy2
-colnames(lui.mat.error) <- yy2
-row.names(intrinsic.site.lui.error) <- yy2
-colnames(intrinsic.site.lui.error) <- c("Intrinsic", "LUI")
-
-write.csv(inter.mat.error, "results/interaction_matrix_lme_std_error_26.csv")
-write.csv(lui.mat.error, "results/lui_matrix_lme_std_error_26.csv")
-write.csv(intrinsic.site.lui.error, "results/intrinsic_site_lui_std_error_lme_26.csv")
-#From here we can calculate latter 95CI intervals multiplying by ±1.96
+#coef.list.error <- lapply(mlist, function(x)summary(x)$tTable[, 2]) #column two correspond to std error
+#
+##the miscelaneous species "REST" is not saved
+#inter.mat.error <- matrix(nrow = length(yy) - 1, ncol = length(yy) - 1)
+#lui.mat.error <- matrix(nrow = length(yy) - 1, ncol = length(yy) - 1)
+#intrinsic.site.lui.error <- matrix(nrow = length(yy) - 1, ncol = 2)
+#
+#for(i in 1:length(coef.list.error)){
+#  cc <- coef.list.error[[i]] ## extract coefficients
+#  
+#  cc2 <- cc[-c(1:2)]
+#  cc3 <- cc2[c(1:26)]
+#  cc4 <- cc2[27:52]
+#  cc5 <- cc[1:2]
+#  
+#  inter.mat.error[i,] <- cc3
+#  lui.mat.error[i,] <- cc4
+#  intrinsic.site.lui.error[i,] <- cc5
+#}
+#
+#row.names(inter.mat.error) <- yy2
+#colnames(inter.mat.error) <- yy2
+#row.names(lui.mat.error) <- yy2
+#colnames(lui.mat.error) <- yy2
+#row.names(intrinsic.site.lui.error) <- yy2
+#colnames(intrinsic.site.lui.error) <- c("Intrinsic", "LUI")
+#
+#write.csv(inter.mat.error, "results/interaction_matrix_lme_std_error_26.csv")
+#write.csv(lui.mat.error, "results/lui_matrix_lme_std_error_26.csv")
+#write.csv(intrinsic.site.lui.error, "results/intrinsic_site_lui_std_error_lme_26.csv")
+##From here we can calculate latter 95CI intervals multiplying by ±1.96
 ```
 
 # Calculate the structural niche and fitness differences
@@ -621,10 +765,12 @@ write.csv(intrinsic.site.lui.error, "results/intrinsic_site_lui_std_error_lme_26
 It is time to apply the structural stability framework. First, prepare the matrix and intrinsic with the effects from different values of LUI, and also removing the species with negative intrinsic and intra-specific coefficients.
 
 ```{r prepare lui}
+rm(list = ls())
+
 #load coefficients
-alpha <- read.table("results/interaction_matrix_lme_average_26.csv", header = TRUE, sep = ",", row.names = 1)
-lui_modify_alpha <- read.table("results/lui_matrix_lme_average_26.csv", header = TRUE, sep = ",", row.names = 1)
-intrinsic <- as.matrix(read.table("results/intrinsic_site_lui_average_lme_26.csv", header = TRUE, sep = ",", row.names = 1))
+alpha <- as.matrix(read.table("results/interaction_matrix_lme_average_26spp.txt", header = TRUE, sep = "\t"))
+lui_modify_alpha <- as.matrix(read.table("results/lui_matrix_lme_average_26spp.txt", header = TRUE, sep = "\t"))
+intrinsic <- as.matrix(read.table("results/intrinsic_site_lui_average_lme_26spp.txt", header = TRUE, sep = "\t"))
 
 #species
 top.short <- c("Poa_tri", "Poa_pra", "Alo_pra", "Dac_glo", "Tri_rep", "Tar_off",
@@ -647,7 +793,7 @@ for(i in 1:(length(lui))){
   for(j in 1:length(row.names(intrinsic))){
     xx[j, 1] <- intrinsic[j, 1] + intrinsic[j, 2] * lui[i]
     xx[j, 2] <- lui[i]
-    }
+  }
   lui_intrinsic[[i]] <- xx
 }
 
@@ -664,15 +810,15 @@ for(i in 1:(length(lui_intrinsic))){
 hh <- list()
 
 for(i in 1:(length(lui))){
-    lui_alpha[[i]] <- alpha + lui_modify_alpha * lui[i]
-    lui_alpha[[i]] <- lui_alpha[[i]][which(rownames(lui_alpha[[i]]) %in%
-                                             row.names(lui_intrinsic_positive[[i]])),
-                                     which(colnames(lui_alpha[[i]]) %in%
-                                             row.names(lui_intrinsic_positive[[i]]))]
-    hh[[i]] <- row.names(subset(lui_alpha[[i]],
-                                diag(as.matrix(lui_alpha[[i]])) < 0)) #we hold those with negative intra
-    lui_alpha[[i]] <- lui_alpha[[i]][which(rownames(lui_alpha[[i]]) %in% hh[[i]]),
-                                     which(colnames(lui_alpha[[i]]) %in% hh[[i]])]
+  lui_alpha[[i]] <- alpha + lui_modify_alpha * lui[i]
+  lui_alpha[[i]] <- lui_alpha[[i]][which(rownames(lui_alpha[[i]]) %in%
+                                           row.names(lui_intrinsic_positive[[i]])),
+                                   which(colnames(lui_alpha[[i]]) %in%
+                                           row.names(lui_intrinsic_positive[[i]]))]
+  hh[[i]] <- row.names(subset(lui_alpha[[i]],
+                              diag(as.matrix(lui_alpha[[i]])) < 0)) #we hold those with negative intra
+  lui_alpha[[i]] <- lui_alpha[[i]][which(rownames(lui_alpha[[i]]) %in% hh[[i]]),
+                                   which(colnames(lui_alpha[[i]]) %in% hh[[i]])]
 }
 
 #get back to the intrinsic and reduce the species list to those with negative intras
@@ -701,21 +847,21 @@ combos2 <- combos2[, 1:(ncol(combos2) - 1)] #remove last column
 combos3 <- read.table("results/selected_combos/combos3.txt", sep = "\t", header = TRUE)
 combos3 <- combos3[, 1:(ncol(combos3) - 1)] #remove last column
 
-#load combos of 5 species
-combos5 <- read.table("results/selected_combos/combos5.txt", sep = "\t", header = TRUE)
-combos5 <- combos5[, 1:(ncol(combos5) - 1)] #remove last column
-
-#load combos of 7 species
-combos7 <- read.table("results/selected_combos/combos7.txt", sep = "\t", header = TRUE)
-combos7 <- combos7[, 1:(ncol(combos7) - 1)] #remove last column
-
-#load combos of 11 species
-combos11 <- read.table("results/selected_combos/combos11.txt", sep = "\t", header = TRUE)
-combos11 <- combos11[, 1:(ncol(combos11) - 1)] #remove last column
-
-#load combos of 17 species
-combos17 <- read.table("results/selected_combos/combos17.txt", sep = "\t", header = TRUE)
-combos17 <- combos17[, 1:(ncol(combos17) - 1)] #remove last column
+##load combos of 5 species
+#combos5 <- read.table("results/selected_combos/combos5.txt", sep = "\t", header = TRUE)
+#combos5 <- combos5[, 1:(ncol(combos5) - 1)] #remove last column
+#
+##load combos of 7 species
+#combos7 <- read.table("results/selected_combos/combos7.txt", sep = "\t", header = TRUE)
+#combos7 <- combos7[, 1:(ncol(combos7) - 1)] #remove last column
+#
+##load combos of 11 species
+#combos11 <- read.table("results/selected_combos/combos11.txt", sep = "\t", header = TRUE)
+#combos11 <- combos11[, 1:(ncol(combos11) - 1)] #remove last column
+#
+##load combos of 17 species
+#combos17 <- read.table("results/selected_combos/combos17.txt", sep = "\t", header = TRUE)
+#combos17 <- combos17[, 1:(ncol(combos17) - 1)] #remove last column
 
 #save again for the cluster
 save.image(file = "results/cluster_combos.RData")
@@ -749,25 +895,31 @@ for (i in 1:length(lui_alpha)){
   lui_combos2[[i]] <- dd
 }
 
-##combinations of 3 species
-#for (i in 1:length(lui_alpha)){
-#  dd <- data.frame()
-#  for (j in 1:nrow(combos3)){
-#    include <- TRUE
-#    for (k in 1:ncol(combos3)){
-#      if (combos3[j, k] %in% rownames(lui_alpha[[i]])){
-#        #keep include as TRUE
-#      } else {
-#        include <- FALSE
-#      }
-#    }
-#    if (isTRUE(include)){
-#      dd <- rbind(dd, combos3[j, ])
-#    }
-#  }
-#  lui_combos3[[i]] <- dd
-#}
-#
+saveRDS(lui_combos2, "results/selected_combos/combos2.rds")
+
+
+#combinations of 3 species
+for (i in 1:length(lui_alpha)){
+  dd <- data.frame()
+  for (j in 1:nrow(combos3)){
+    include <- TRUE
+    for (k in 1:ncol(combos3)){
+      if (combos3[j, k] %in% rownames(lui_alpha[[i]])){
+        #keep include as TRUE
+      } else {
+        include <- FALSE
+      }
+    }
+    if (isTRUE(include)){
+      dd <- rbind(dd, combos3[j, ])
+    }
+  }
+  lui_combos3[[i]] <- dd
+}
+
+saveRDS(lui_combos3, "results/selected_combos/combos3.rds")
+
+
 ##combinations of 5 species
 #for (i in 1:length(lui_alpha)){
 #  dd <- data.frame()
@@ -787,6 +939,8 @@ for (i in 1:length(lui_alpha)){
 #  lui_combos5[[i]] <- dd
 #}
 #
+#saveRDS(lui_combos2, "results/selected_combos/combos2.rds")
+
 ##combinations of 7 species
 #for (i in 1:length(lui_alpha)){
 #  dd <- data.frame()
@@ -806,6 +960,8 @@ for (i in 1:length(lui_alpha)){
 #  lui_combos7[[i]] <- dd
 #}
 #
+#saveRDS(lui_combos2, "results/selected_combos/combos2.rds")
+
 ##combinations of 11 species
 #for (i in 1:length(lui_alpha)){
 #  dd <- data.frame()
@@ -825,6 +981,8 @@ for (i in 1:length(lui_alpha)){
 #  lui_combos11[[i]] <- dd
 #}
 #
+#saveRDS(lui_combos2, "results/selected_combos/combos2.rds")
+
 ##combinations of 17 species
 #for (i in 1:length(lui_alpha)){
 #  dd <- data.frame()
@@ -843,35 +1001,39 @@ for (i in 1:length(lui_alpha)){
 #  }
 #  lui_combos17[[i]] <- dd
 #}
+#
+#saveRDS(lui_combos2, "results/selected_combos/combos2.rds")
 
-#keep only what is needed
-rm(list=ls()[! ls() %in% c("lui_alpha", "lui_combos2", "lui_combos3",
-                           "lui_combos5", "lui_combos7", "lui_combos11",
-                           "lui_combos17", "lui_intrinsic_positive")])
-
-#create image
-save.image(file = "results/LUI_combos.RData")
+rm(list = ls())
 ```
 
 We, now, load the packages and define the different functions needed for calculating the structural coexistence outputs.
 
-```{r prepare structural stability}
+```{r toolbox structural stability}
+#R-code of "A structural approach for understanding multispecies coexistence" by:
+#Serguei Saavedra, Rudolf P. Rohr, Jordi Bascompte, Oscar Godoy, Nathan J.B. Kraft,
+#and Jonathan M. Levine
+#published in: Ecological Monographs in 2017
+
 ### LOAD PACKAGES
 library(mvtnorm)
 library(foreach)
 library(doParallel)
 library(parallel)
 library(MASS)
+library(doSNOW)
 
-### DEFINE FUNCTIONS
+#input parameters:
+#alpha = competition strenght matrix 
+#r = vector of intrinsic growth rates
 
 #structural niche difference (output on a log scale)
 Omega <- function(alpha){
   n <- nrow(alpha)
-  Sigma <- solve(t(alpha) %*% alpha, tol = 1e-20) #tolerance modified due to singularities
+  Sigma <-solve(t(alpha) %*% alpha, tol = 1e-40)
   d <- pmvnorm(lower = rep(0,n), upper = rep(Inf,n), mean = rep(0,n), sigma = Sigma)
   out <- log10(d[1]) + n * log10(2)
-  return(out)
+  return(out) 
 }
 
 #vector defining the centroid of the feasibility domain
@@ -884,6 +1046,7 @@ r_centroid <- function(alpha){
   return(r_c)
 }
 
+
 #structural fitness difference (in degree)
 theta <- function(alpha,r){
   r_c <- r_centroid(alpha)
@@ -891,11 +1054,13 @@ theta <- function(alpha,r){
   return(out)
 }
 
+
 #test if a system (alpha and r) is feasible (output 1 = feasible, 0 = not feasible)
 test_feasibility <- function(alpha,r){
-  out <- prod(solve(alpha, r) > 0)
+  out <- prod(solve(alpha,r)>0)
   return(out)
 }
+
 
 #test which pairs in a system (alpha and r) are feasible (output 1 = feasible, 0 = not feasible)
 test_feasibility_pairs <- function(alpha,r){
@@ -904,26 +1069,27 @@ test_feasibility_pairs <- function(alpha,r){
   nc <- dim(c)[2]
   f <- rep(NA,nc)
   for (i in 1:nc){
-    f[i] <- prod(solve(alpha[c[,i],c[,i]],r[c[,i]])>0)
+      f[i] <- prod(solve(alpha[c[,i],c[,i]],r[c[,i]])>0)
   }
   out <- list(pairs = c, feasibility = f)
   return(out)
 }
 
+
 #compute the feasiblity domain, the feasibility domain of all pairs, and their overlap (Nrand = number of randomization)
 compute_overlap <- function(alpha,Nrand){
   
   n <- dim(alpha)[1]
-  
+
   counter_f <- 0
   counter_overlap <- 0
   counter_all <- 0
-  
+    
   for (i in 1:Nrand){
     
     r_rand <- abs(rnorm(n))  
     r_rand <- r_rand/sqrt(sum(r_rand^2))
-    
+  
     f1 <- test_feasibility(alpha,r_rand)  
     f2 <- test_feasibility_pairs(alpha,r_rand)$feasibility  
     
@@ -942,106 +1108,148 @@ compute_overlap <- function(alpha,Nrand){
   
 }
 
-#all possible combinations! MODIFIED TO INCLUDE PRE-DEFINED COMBOS!
-structural_coex <- function(alpha, intrinsic, n, combos, treatment){
+
+#function to compute the structural coexistence given a certan set of combos
+str_coex_combos <- function(alpha, intrinsic, combos){
   
-  alpha <- as.matrix(alpha)
-  intrinsic <- as.matrix(intrinsic)
-  combos <- as.matrix(combos)
-  rownames(combos) <- NULL; colnames(combos) <- NULL
+  combos[[i]] <- as.matrix(combos[[i]])
   
-  pair_names <- apply(combn(n, 2), 2, paste, collapse = "_") #name all the possible pairs
+  col_results  <- c("omega", "theta", "overlap", "differential", "feasibility", "feasibility_pair_to_all", "lui")
   
-  #combos <- t(combn(rownames(alpha), n)) #matrix with all possible combinations of n species
+  results_combo <- matrix (nrow = nrow(combos[[i]]), ncol = length(col_results))
+  row.names(results_combo) <- apply(combos[[i]], 1, paste, collapse=".") 
+  colnames(results_combo) <- col_results
   
-  results_combos <- matrix(nrow = dim(combos)[1], ncol = (5 + ncol(combn(n, 2)) + 2))
-  row.names(results_combos) <- apply(combos, 1, paste, collapse = "_") #change the 'collapse' feature if needed
-  colnames(results_combos) <- c("Omega", "theta", "differential", "overlap", "feasibility", pair_names, "coex_rate", "treatment")
-  
-  for(i in 1:nrow(combos)){
-    zeroes <- matrix(data = 0, nrow = n, ncol = n)
-    intrinsic2 <- as.matrix(subset(intrinsic, rownames(intrinsic) %in% combos[i,]))
-    alpha2 <- as.matrix(alpha[combos[i,], combos[i,]])
-    
-    if(isFALSE(FALSE %in% (alpha2 == zeroes))){
-      results_combos[i, ] <- NA
-    } else {
-      #omega
-      results_combos[i, 1] <- 10^Omega(alpha2)
-      #theta
-      results_combos[i, 2] <- theta(alpha2, intrinsic2)
-      #differential and overlap
-      y <- compute_overlap(alpha2, 10000)
-      results_combos[i, 3] <- y$Omega - y$Omega_all
-      results_combos[i, 4] <- y$overlap
-      #feasibility (all)
-      results_combos[i, 5] <- test_feasibility(alpha2, intrinsic2)
-      x <- test_feasibility_pairs(alpha2, intrinsic2)
-      #feasibility (pair by pair)
-      results_combos[i, 6:(5 + ncol(combn(n, 2)))] <- x$feasibility
-      #coexistence rate
-      results_combos[i, (ncol(results_combos) - 1)] <- sum(x$feasibility) / ncol(combn(n, 2))
-      #treatment
-      results_combos[i, ncol(results_combos)] <- treatment
-    }
-    
+  for (j in 1:(nrow(combos[[i]]))){
+    ll <- combos[[i]][j,]
+    mm <- alpha[[i]][which(rownames(alpha[[i]]) %in% ll), which(colnames(alpha[[i]]) %in% ll)]
+    mm <- -1 * mm #this is because intras has to be positive
+
+    ii <- subset(intrinsic[[i]], rownames(intrinsic[[i]]) %in% ll)
+    #this is niche differences
+    results_combo[j, 1] <- 10^Omega(mm)
+    #this is fitness differences
+    results_combo[j, 2] <- theta(mm, ii[, 1])
+    co <- compute_overlap(mm, 1000)
+    #this is community overlap
+    results_combo[j, 3] <- co$overlap
+    #this is community differential
+    results_combo[j, 4] <- co$Omega - co$Omega_all
+    #this is whether all speceis can coexist
+    results_combo[j, 5] <- test_feasibility(mm, ii[, 1]) 
+    #this is whether pairs do not coexist but the multispecies assemblage does
+    results_combo[j, 6] <- sum(test_feasibility_pairs(mm, ii[, 1])$feasibility) /
+      length(test_feasibility_pairs(mm, ii[, 1])$feasibility)
+    results_combo[j, 7] <- unique(intrinsic[[i]][, 2])
   }
-  results_combos <- as.data.frame(results_combos)
-  
-  results_combos$combos <- rownames(results_combos)
-  
-  return(results_combos)
+  return(results_combo)
 }
+
+
+##function to know which plant species have negative intraspecific interaction coefficients
+#intras <- function(alpha, combos){
+#  
+#  combos[[i]] <- as.matrix(combos[[i]])
+#  neg_intras <- data.frame()
+#  
+#  for (j in 1:(nrow(combos[[i]]))){
+#    ll <- combos[[i]][j,]
+#    mm <- alpha[[i]][which(rownames(alpha[[i]]) %in% ll), which(colnames(alpha[[i]]) %in% ll)]
+#    mm <- -1 * mm #this is because intras has to be positive
+#    
+#    #save info to locate the species in case of negative intras
+#    if(length(names(which((diag(mm) > 0) == TRUE)) != 0)){
+#      neg_intras <- rbind(neg_intras,
+#                          data.frame("lui_level" = i,
+#                                     "combo" = j,
+#                                     "species" = paste(names(which((diag(mm) > 0) == TRUE)), collapse = " & ")))
+#    }
+#  }
+#  return(neg_intras)
+#}
 ```
 
 And, finally, apply the structural stability approach to calculate the mechanisms of multispecies coexistence. We do it for 2 species because it takes around 10 minutes to run (with parallel computing and 4 cores). The other combinations, except for 17 species, need to be done using the cluster.
 
 ```{r structural stability}
-#set conditions
-combos <- lui_combos2
-richness <- 2
-path <- "results/coex_LUI_2spp.txt"
+#load the alpha and intrinsic
+load(file = "results/LUI_effects.RData")
 
-#set parallel computation
-numCores <- detectCores() #number of cores in your computer
-registerDoParallel(numCores) #important: define parallel computation to numCores
+#load the combos
+combos_lui2 <- readRDS("results/selected_combos/combos2.rds")
+combos_lui3 <- readRDS("results/selected_combos/combos3.rds")
 
-#compute structural coexistence and shape results' dataframe
-alpha <- lui_alpha
-intrinsic <- list()
-for (i in 1:length(lui_intrinsic_positive)){
-  intrinsic[[i]] <- lui_intrinsic_positive[[i]][, 1]
-}
-lui <- seq(from = 0.5, to = 3, by = 0.25)
+#parallel
+cores = detectCores()
+cl <- makeCluster(cores[1])
+registerDoSNOW(cl) #defines parallel computation 
+startime <- Sys.time() # to see how much it takes to run
 
-#compute
-results <- foreach(i = 1:length(alpha), .combine = rbind, .packages = 'mvtnorm') %dopar% {
-  structural_coex(alpha = alpha[[i]], intrinsic = intrinsic[[i]], n = richness, combos = combos[[i]], treatment = lui[i])
+
+#compute combinations of 2 species
+results_coex <- list()
+results_coex <- foreach (i = 1:length(combos_lui2), .packages = "mvtnorm") %dopar% {
+  str_coex_combos(alpha = lui_alpha, intrinsic = lui_intrinsic_positive, combos = combos_lui2)
 }
 
-#stop parallel computing
-stopImplicitCluster()
+##re-structure results for 2 species
+coex2 <- data.frame()
+for(i in 1:length(results_coex)){
+  a <- data.frame("combos" = rownames(results_coex[[i]]),
+                                   "SND" = results_coex[[i]][, 1],
+                                   "SFD" = results_coex[[i]][,2],
+                                   "feasibility" = results_coex[[i]][, 5],
+                                   "LUI" = results_coex[[i]][, 7])
+  coex2 <- rbind(coex2, a)
+}
 
-#save, just in case
-results <- results[, c(1, 2, 5, 8, 9)]; rownames(results) <- NULL
-write.table(results, path, row.names = FALSE, sep = "\t")
+write.csv(coex2, file = "results/results-LUI_coexistence-2spp.csv", row.names = FALSE)
+
+
+#compute combinations of 3 species
+results_coex <- list()
+results_coex <- foreach (i = 1:length(combos_lui3), .packages = "mvtnorm") %dopar% {
+  str_coex_combos(alpha = lui_alpha, intrinsic = lui_intrinsic_positive, combos = combos_lui3)
+}
+
+#specific changes to 3 species
+##re-structure results for 2 species
+coex3 <- data.frame()
+for(i in 1:length(results_coex)){
+  a <- data.frame("combos" = rownames(results_coex[[i]]),
+                                   "SND" = results_coex[[i]][, 1],
+                                   "SFD" = results_coex[[i]][,2],
+                                   "overlap" = results_coex[[i]][, 3],
+                                   "differential" = results_coex[[i]][, 4],
+                                   "feasibility" = results_coex[[i]][, 5],
+                                   "pair_to_all" = results_coex[[i]][, 6],
+                                   "LUI" = results_coex[[i]][, 7])
+  coex3 <- rbind(coex3, a)
+}
+
+write.csv(coex3, file = "results/results-LUI_coexistence-3spp.csv", row.names = FALSE)
+
+#STOP cluster
+stopCluster(cl) #stop cluster
+endtime <- Sys.time() #save time once finished
+(totime <- endtime - startime)
+
+#alarm, in case it is needed
+#source("code/beep.R")
 ```
 
 # Figures analysing the results for 2 and 3 species
 
 ```{r 2spp fig, message = FALSE, warning = FALSE}
 #load coexistence 2 species results
-coex2 <- read.table(file = "results/coex_LUI_2spp.txt", header = TRUE, sep = "\t")
-colnames(coex2) <- c("SND", "SFD", "feasibility", "LUI", "combos")
+#coex2 <- read.table(file = "results/coex_LUI_2spp.txt", header = TRUE, sep = "\t")
+coex2 <- read.csv(file = "results/results-LUI_coexistence-2spp.csv")
 coex2$feasibility <- as.factor(coex2$feasibility)
-coex2$LUI <- as.factor(coex2$LUI)
+#coex2$LUI <- as.factor(coex2$LUI)
 
-#load coexistence 2 species results
-coex3 <- read.table(file = "results/coex_LUI_3spp.txt", header = TRUE, sep = "\t")
-colnames(coex3) <- c("SND", "SFD", "differential", "overlap", "feasibility",
-                     "c1_2", "c1_3", "c2_3", "coex_rate", "LUI", "combos")
+coex3 <- read.csv(file = "results/results-LUI_coexistence-3spp.csv")
 coex3$feasibility <- as.factor(coex3$feasibility)
-coex3$LUI <- as.factor(coex3$LUI)
+#coex3$LUI <- as.factor(coex2$LUI)
 
 #load ggplot2
 library(ggplot2)
@@ -1057,36 +1265,70 @@ ggplot(data = coex3, aes(x = SND, y = SFD, color = feasibility)) +
   geom_point(alpha = 0.4, size = 1.5) +
   ggtitle("Combinations of 3 species")
 
-#x = SND, y = SFD, color = LUI
-ggplot(data = coex2, aes(x = SND, y = SFD, color = LUI)) +
-  geom_point(alpha = 0.4, size = 1.5) +
+#x = LUI, y = SND
+ggplot(data = coex2, aes(x = LUI, y = SND)) +
+  geom_point(alpha = 0.5) +
+  geom_smooth(alpha = 0, size = 2) +
   ggtitle("Combinations of 2 species")
 
-ggplot(data = coex3, aes(x = SND, y = SFD, color = LUI)) +
-  geom_point(alpha = 0.4, size = 1.5) +
+ggplot(data = coex3, aes(x = LUI, y = SND)) +
+  geom_point(alpha = 0.5) +
+  geom_smooth(alpha = 0, size = 2) +
   ggtitle("Combinations of 3 species")
 
 #x = LUI, y = SFD
-ggplot(data = coex2, aes(x = LUI, y = SFD)) + geom_point() +
+ggplot(data = coex2, aes(x = LUI, y = SFD)) +
+  geom_point(alpha = 0.5) +
+  geom_smooth(alpha = 0, size = 2) +
   ggtitle("Combinations of 2 species")
 
-ggplot(data = coex3, aes(x = LUI, y = SFD)) + geom_point() +
-  ggtitle("Combinations of 3 species")
-
-#x = LUI, y = SND
-ggplot(data = coex2, aes(x = LUI, y = SND)) + geom_point() +
-  ggtitle("Combinations of 2 species")
-
-ggplot(data = coex3, aes(x = LUI, y = SND)) + geom_point() +
+ggplot(data = coex3, aes(x = LUI, y = SFD)) +
+  geom_point(alpha = 0.5) +
+  geom_smooth(alpha = 0, size = 2) +
   ggtitle("Combinations of 3 species")
 
 #x = LUI, y = feasibility
-ggplot(data = coex2, aes(x = LUI, y = feasibility)) + geom_point() +
+ggplot(data = coex2, aes(x = LUI, y = as.integer(feasibility)-1)) +
+  geom_point() +
+  geom_smooth(alpha = 0, size = 2) +
+  ylab("Feasibility") +
   ggtitle("Combinations of 2 species")
 
-ggplot(data = coex3, aes(x = LUI, y = feasibility)) + geom_point() +
+ggplot(data = coex3, aes(x = LUI, y = as.integer(feasibility)-1)) +
+  geom_point() +
+  geom_smooth(alpha = 0, size = 2) +
+  ylab("Feasibility") +
   ggtitle("Combinations of 3 species")
-
 ```
 
 **THIS IS JUST NOT POSSIBLE. THERE IS NO COEXISTENCE. SNDs ARE LOW AND SFDs TOO HIGH. THERE MUST BE AN ERROR SOMEWHERE BUT I AM UNABLE TO DETECT IT.**
+
+```{r rodroscar}
+oscar <- read.csv("results/OG_results/interaction_matrix_lme_average_50.csv", row.names = 1)
+rodrigo <- read.table("results/interaction_matrix_lme_average_26spp.txt", header = TRUE, sep = "\t")
+
+kk <- c(which(names(oscar) %in% names(rodrigo))[1:5], 6, which(names(oscar) %in% names(rodrigo))[6:length(which(names(oscar) %in% names(rodrigo)))])
+
+oscar <- oscar[kk, kk]
+
+oscar <- oscar[order(names(oscar)), order(names(oscar))]
+rodrigo <- rodrigo[order(names(rodrigo)), order(names(rodrigo))]
+
+oscar <- as.vector(as.matrix(oscar))
+rodrigo <- as.vector(as.matrix(rodrigo))
+
+plot(rodrigo, oscar); abline(res <- lm(oscar ~ rodrigo))
+
+RSS <- c(crossprod(res$residuals))
+MSE <- RSS / length(res$residuals)
+(RMSE <- sqrt(MSE))
+```
+
+
+
+
+
+
+
+
+

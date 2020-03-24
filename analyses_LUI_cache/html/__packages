@@ -11,3 +11,5 @@ foreach
 iterators
 doParallel
 MASS
+snow
+doSNOW
