@@ -5,7 +5,7 @@
 rm(list = ls())
 
 #load LUI data
-lui <- read.csv("data/LUI06_15.csv", header  = TRUE)
+lui <- read.csv("data/raw_data/LUI06_15.csv", header  = TRUE)
 
 #stick with LUI at different years
 lui.only <- lui[, grep("LUI", names(lui))]
@@ -24,7 +24,7 @@ lui_total <- data.frame("Plot" = pp, "Year" = yy, "LUI" = lu)
 #####################
 
 #load plant data
-plants <- read.csv("data/BE.plants08.16.csv", header = TRUE)
+plants <- read.csv("data/raw_data/BE.plants08.16.csv", header = TRUE)
 
 #remove data from 2016
 plants <- plants[plants$Year != 2016, ]
@@ -98,7 +98,7 @@ ggsave("figures/LUI_richness_full.png", width = 8, height = 4, dpi = 320)
 ##### SELECT 26 MOST COMMON
 
 #load LUI data
-lui <- read.csv("data/LUI06_15.csv", header  = TRUE)
+lui <- read.csv("data/raw_data/LUI06_15.csv", header  = TRUE)
 
 #stick with LUI at different years
 lui.only <- lui[, grep("LUI", names(lui))]
@@ -116,7 +116,7 @@ lui_total <- data.frame("Plot" = pp, "Year" = yy, "LUI" = lu)
 rm(lui, lui_tot, lui.only, lui.only2, pp, lu, yy)
 
 #load plant data
-plants <- read.csv("data/BE.plants08.16.csv", header = TRUE)
+plants <- read.csv("data/raw_data/BE.plants08.16.csv", header = TRUE)
 
 plants <- plants[plants$Year != 2016, ]
 
@@ -174,10 +174,3 @@ library(ggpubr)
 both_lui_rich <- ggarrange(lui_rich_full, lui_rich_51, nrow = 2, align = "hv")
 ggarrange(box, both_lui_rich, widths = c(3, 4))
 ggsave("figures/LUI_richness_both.png", width = 7, height = 7, dpi = 320)
-
-
-
-
-
-
-

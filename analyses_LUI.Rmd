@@ -939,9 +939,10 @@ saveRDS(lui_combos3, "results/selected_combos/combos3.rds")
 #  lui_combos5[[i]] <- dd
 #}
 #
-#saveRDS(lui_combos2, "results/selected_combos/combos2.rds")
-
-##combinations of 7 species
+#saveRDS(lui_combos5, "results/selected_combos/combos5.rds")
+#
+#
+#combinations of 7 species
 #for (i in 1:length(lui_alpha)){
 #  dd <- data.frame()
 #  for (j in 1:nrow(combos7)){
@@ -960,8 +961,9 @@ saveRDS(lui_combos3, "results/selected_combos/combos3.rds")
 #  lui_combos7[[i]] <- dd
 #}
 #
-#saveRDS(lui_combos2, "results/selected_combos/combos2.rds")
-
+#saveRDS(lui_combos7, "results/selected_combos/combos7.rds")
+#
+#
 ##combinations of 11 species
 #for (i in 1:length(lui_alpha)){
 #  dd <- data.frame()
@@ -981,8 +983,9 @@ saveRDS(lui_combos3, "results/selected_combos/combos3.rds")
 #  lui_combos11[[i]] <- dd
 #}
 #
-#saveRDS(lui_combos2, "results/selected_combos/combos2.rds")
-
+#saveRDS(lui_combos11, "results/selected_combos/combos11.rds")
+#
+#
 ##combinations of 17 species
 #for (i in 1:length(lui_alpha)){
 #  dd <- data.frame()
@@ -1002,14 +1005,30 @@ saveRDS(lui_combos3, "results/selected_combos/combos3.rds")
 #  lui_combos17[[i]] <- dd
 #}
 #
-#saveRDS(lui_combos2, "results/selected_combos/combos2.rds")
+#saveRDS(lui_combos17, "results/selected_combos/combos17.rds")
 
 rm(list = ls())
+
+
+#from cluster to the "real world"
+load("results/selected_combos/LUI_combos.RData")
+
+for (i in 1:length(lui_combos5)){
+  rownames(lui_combos5[[i]]) <- NULL
+  rownames(lui_combos7[[i]]) <- NULL
+  rownames(lui_combos11[[i]]) <- NULL
+  rownames(lui_combos17[[i]]) <- NULL
+}
+
+saveRDS(lui_combos5, "results/selected_combos/combos5.rds")
+saveRDS(lui_combos7, "results/selected_combos/combos7.rds")
+saveRDS(lui_combos11, "results/selected_combos/combos11.rds")
+saveRDS(lui_combos17, "results/selected_combos/combos17.rds")
 ```
 
 We, now, load the packages and define the different functions needed for calculating the structural coexistence outputs.
 
-```{r toolbox structural stability}
+```{r toolbox structural stability, message = FALSE, warning = FALSE}
 #R-code of "A structural approach for understanding multispecies coexistence" by:
 #Serguei Saavedra, Rudolf P. Rohr, Jordi Bascompte, Oscar Godoy, Nathan J.B. Kraft,
 #and Jonathan M. Levine
@@ -1303,6 +1322,10 @@ ggplot(data = coex3, aes(x = LUI, y = as.integer(feasibility)-1)) +
 
 **THIS IS JUST NOT POSSIBLE. THERE IS NO COEXISTENCE. SNDs ARE LOW AND SFDs TOO HIGH. THERE MUST BE AN ERROR SOMEWHERE BUT I AM UNABLE TO DETECT IT.**
 
+# *Comprobations*
+
+## *Relationship between Oscar's and Rodrigo's interaction matrix*
+
 ```{r rodroscar}
 oscar <- read.csv("results/OG_results/interaction_matrix_lme_average_50.csv", row.names = 1)
 rodrigo <- read.table("results/interaction_matrix_lme_average_26spp.txt", header = TRUE, sep = "\t")
@@ -1324,8 +1347,136 @@ MSE <- RSS / length(res$residuals)
 (RMSE <- sqrt(MSE))
 ```
 
+## *Relationship between Will Petry's and Serguei Saavedra's SND*
 
+```{r PetriSaavedra}
+coex2 <- read.csv(file = "results/results-LUI_coexistence-2spp.csv")
+coex3 <- read.csv(file = "results/results-LUI_coexistence-3spp.csv")
 
+PS2 <- data.frame("Petri" = coex2$SND, "Saavedra" = exp(log10(coex2$SND)))
+PS3 <- data.frame("Petri" = coex3$SND, "Saavedra" = exp(log10(coex3$SND)))
+
+rm(coex2, coex3)
+
+library(ggplot2)
+library(ggpubr)
+
+(plotPS2 <- ggplot(data = PS2, aes(Petri, y = Saavedra)) +
+    geom_abline(slope = 1, color = "darkgreen") +
+    geom_hline(yintercept = 1, lty = 5) +
+    geom_vline(xintercept = 1, lty = 5) +
+    geom_point(na.rm = TRUE, size = 2, shape = 1) +
+    labs(title = "SND for combinations of 2 species",
+         x = "Will Petry",
+         y = "Serguei Saavedra") +
+    theme_classic2())
+
+(plotPS3 <- ggplot(data = PS3, aes(Petri, y = Saavedra)) +
+    geom_abline(slope = 1, color = "darkgreen") +
+    geom_hline(yintercept = 1, lty = 5) +
+    geom_vline(xintercept = 1, lty = 5) +
+    geom_point(na.rm = TRUE, size = 2, shape = 1) +
+    labs(title = "SND for combinations of 3 species",
+         x = "Will Petry",
+         y = "Serguei Saavedra") +
+    theme_classic2())
+```
+
+# Random
+
+```{r create_random}
+#load lui_alpha and intrinsic
+load(file = "results/LUI_effects.RData")
+
+### function to obtain random values
+randomize <- function(coefs){
+  v <- 0
+  if ((range(coefs)[1] * range(coefs)[2]) < 0){
+    for (i in 2:(length(coefs) - 1)){
+      v <- c(v, runif(1, min = -sum(abs(range(coefs))) / length(coefs),
+                      max = sum(abs(range(coefs))) / length(coefs)))
+    }
+  } else {
+    if (min(coefs) < 0){
+      for (i in 2:(length(coefs) - 1)){
+        v <- c(v, runif(1, min = (min(coefs) - max(coefs)) / length(coefs),
+                        max = -(min(coefs) - max(coefs)) / length(coefs)))
+      }
+    } else {
+      for (i in 2:(length(coefs) - 1)){
+        v <- c(v, runif(1, min = -(max(coefs) - min(coefs)) / length(coefs),
+                        max = (max(coefs) - min(coefs)) / length(coefs)))
+      }
+    }
+  }
+  return(c(v, 0))
+}
+
+#loop for each LUI value
+random_intrinsic <- list()
+random_alpha <- list()
+
+for (i in 1:length(lui_alpha)){
+  
+  #define intras, inters e intrinsic
+  alpha <- lui_alpha[[i]]
+  intras <- as.vector(diag(alpha));
+  diag(alpha) <- NA; inters <- as.vector(alpha); inters <- inters[!is.na(inters)]
+  intrinsic <- as.vector(lui_intrinsic_positive[[i]][, 1])
+  
+  #loop within each LUI level
+  n <- 999 #number of random replicates
+  rintrinsic <- list()
+  ralpha <- list()
+  
+  for (j in 1:n){
+    #output random intrinsic
+    rintrinsic[[j]] <- abs(sample(sort(intrinsic) + randomize(intrinsic)))
+    
+    #define random
+    random <- 1 - diag(length(intras))
+    
+    #fill random with inters
+    random[random == 1] <- sample(sort(inters) + randomize(inters))
+    
+    #fill random with intras
+    diag(random) <- sample(sort(intras) + randomize(intras))
+    
+    #row and column names
+    rownames(random) <- rownames(alpha)
+    colnames(random) <- colnames(alpha)
+    
+    #output random alphas
+    ralpha[[j]] <- random
+  }
+  random_intrinsic[[i]] <- rintrinsic
+  random_alpha[[i]] <- ralpha
+}
+
+#write RDS
+saveRDS(random_intrinsic, "results/random/random_intrinsic.RDS")
+saveRDS(random_alpha, "results/random/random_alpha.RDS")
+```
+
+```{r random_example, fig.width = 4, fig.height = 8}
+#graphical example
+library(ggpubr)
+library(car)
+
+ggarrange(ggdensity(intras,
+                    main = "Observed",
+                    xlab = ""),
+          ggdensity(sample(sort(intras) + randomize(intras)),
+                    main = "Randomised #1",
+                    xlab = ""),
+          ggdensity(sample(sort(intras) + randomize(intras)),
+                    main = "Randomised #2",
+                    xlab = ""),
+          ggdensity(sample(sort(intras) + randomize(intras)),
+                    main = "Randomised #3",
+                    xlab = "Intra-specific coefficients"),
+          ncol = 1, nrow = 4, align = "v")
+```
 
 
 
