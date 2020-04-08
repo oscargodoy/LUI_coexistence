@@ -61,7 +61,11 @@ over <- ggplot(data = coex, aes(x = LUI, y = overlap, colour = richness)) +
 
 #arrange
 ggarrange(diff, over, ncol = 1, nrow = 2, align = "hv",
-          common.legend = TRUE, legend = "top")
+          common.legend = TRUE, legend = "top",
+          labels = "AUTO",
+          font.label = list(size = size_text + 5),
+          hjust = -1,
+          vjust = 0)
 
 #save
 ggsave("figures/paper_figures/Fig2.png", device = "png",

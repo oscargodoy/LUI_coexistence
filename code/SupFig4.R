@@ -489,8 +489,7 @@ library(ggplot2)
     scale_y_continuous(name = "Number of species",
                        breaks = seq(0, 26, 1)) +
     theme(legend.position = "right",
-          text = element_text(size = size_text)) +
-    
+          text = element_text(size = size_text))
 )
 ggsave(obs_pred, filename = "figures/observed_predicted.png", device = "png",
        width = 6, height = 4, limitsize = FALSE)
@@ -514,8 +513,16 @@ blank <- ggplot(data = feasible, aes(x = LUI, y = species)) +
   theme_void()
 
 #mix them
-a <- ggarrange(blank, obs_pred, blank, nrow = 1, ncol = 3, widths = c(0.75, 3, 0.6))
-ggarrange(a, predictions, ncol = 1, nrow = 2, heights = c(1.5, 2))
+a <- ggarrange(blank, obs_pred, blank,
+               nrow = 1, ncol = 3,
+               widths = c(0.75, 3, 0.6))
+ggarrange(a, predictions,
+          ncol = 1, nrow = 2,
+          heights = c(1.5, 2),
+          labels = "AUTO",
+          font.label = list(size = size_text + 5),
+          hjust = c(-12.5, -2.15),
+          vjust = c(1, 1.5))
 ggsave(filename = "figures/paper_figures/SupFig4.png", device = "png",
               width = 15, height = 10, limitsize = FALSE)
 

@@ -86,7 +86,7 @@ size_figure <- c(12, 16) #width and height for saving the final figure
 fig_color <- c("deepskyblue2", "gray50")
 
 #structural niche differences 2 species
-(randomSND2 <- ggplot(data = ridges2, aes(y = LUI)) +
+randomSND2 <- ggplot(data = ridges2, aes(y = LUI)) +
   geom_density_ridges(aes(x = SND,
                           point_color = Type,
                           point_fill = Type,
@@ -109,7 +109,7 @@ fig_color <- c("deepskyblue2", "gray50")
     ylab("Land use intensity (LUI)") +
     ggtitle("2 species combinations") +
     theme(text = element_text(size = size_text))
-)
+
 
 #structural niche differences 3 species
 randomSND3 <- ggplot(data = ridges3, aes(y = LUI)) +
@@ -163,7 +163,7 @@ randomSFD2 <- ggplot(data = ridges2, aes(y = LUI)) +
   theme(text = element_text(size = size_text))
 
 #structural niche differences 3 species
-(randomSFD3 <- ggplot(data = ridges3, aes(y = LUI)) +
+randomSFD3 <- ggplot(data = ridges3, aes(y = LUI)) +
   geom_density_ridges(aes(x = SFD,
                           point_color = Type,
                           point_fill = Type,
@@ -187,7 +187,7 @@ randomSFD2 <- ggplot(data = ridges2, aes(y = LUI)) +
   ylab("Land use intensity (LUI)") +
   ggtitle(" ") +
   theme(text = element_text(size = size_text))
-)
+
 
 #put them together
 ggarrange(randomSND2, randomSFD2,
@@ -195,7 +195,11 @@ ggarrange(randomSND2, randomSFD2,
           ncol = 2, nrow = 2,
           common.legend = TRUE,
           legend = "right",
-          align = "hv")
+          align = "hv",
+          labels = "AUTO",
+          font.label = list(size = size_text + 5),
+          hjust = -1,
+          vjust = 2.25)
 
 #save!
 ggsave("figures/paper_figures/SupFig3.png", device = "png",

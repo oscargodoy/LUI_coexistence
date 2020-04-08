@@ -242,7 +242,7 @@ rm(lui_total, plants, rich_26spp)
 
 And, finally, with both data frames ready we can proceed to plot the data to describe the variability of LUI and the relationship between LUI and species richness for both the full and 26-species community.
 
-```{r plot_lui_richness, warning = FALSE, message = FALSE, fig.height = 7, fig.width = 7}
+```{r SupFig1, warning = FALSE, message = FALSE, fig.height = 7, fig.width = 7}
 #this chunk depends on chunk(s): restructure_plants_quanti,
 #restructure_lui, lui_richness_full_comm, lui_richness_26spp_comm
 
@@ -285,15 +285,27 @@ lui_rich_26spp <- ggplot(data = richness_26spp_comm,
 #load the ggpubr library for charts (nicely combining plots)
 library(ggpubr)
 
+#change the size of the panel letters
+size_text <- 12
+
 #step one: combine the full community and 26-spp plots
-both_lui_rich <- ggarrange(lui_rich_full, lui_rich_26spp, nrow = 2, align = "hv")
+both_lui_rich <- ggarrange(lui_rich_full, lui_rich_26spp,
+                           nrow = 2, align = "hv",
+                           labels = c("B", "C"),
+                           font.label = list(size = size_text),
+                           hjust = c(-0.9, -0.9),
+                           vjust = c(1.5, 0.85))
 
 #step two: combine all
-lui_richness <- ggarrange(box_lui, both_lui_rich, widths = c(3, 4))
+lui_richness <- ggarrange(box_lui, both_lui_rich,
+                          widths = c(3, 4),
+                          labels = "A",
+                          font.label = list(size = size_text),
+                          hjust = -1.55)
 print(lui_richness)
 
 #save the figure as png (change output format as you please)
-ggsave(plot = lui_richness, "figures/LUI_richness.png",
+ggsave(plot = lui_richness, "figures/paper_figures/SupFig1.png",
        width = 7, height = 7, dpi = 320)
 
 #clean everything
@@ -310,7 +322,7 @@ Picking which combinations we are going to use to apply the structural coexisten
 
 First of all, we ought to understand how well represented are the different combinations of different richness levels in our data. This way, we avoid choosing a richness level that has actually no representation in nature.
 
-```{r saturation, fig.height = 4, fig.width = 6}
+```{r SupFig2, fig.height = 4, fig.width = 6}
 #this chunk depends on chunk(s): path_and_plants
 library(ggplot2)
 
@@ -340,7 +352,7 @@ saturation <- data.frame("richness" = rich, "ratio" = max_comb)
     geom_point(size = 2, color = "darkgreen"))
 
 #save the plot
-ggsave(plot = ratio_combos, filename = "figures/ratio_combos.png",
+ggsave(plot = ratio_combos, filename = "figures/paper_figures/SupFig2.png",
        width = 6, height = 4, dpi = 320)
 
 #clean (except for p_plant_only, that we'll use below)
