@@ -1,8 +1,8 @@
 #number of plants
-n_plants <- 50
+n_plants <- 26
 
 #load LUI data
-lui <- read.csv("data/LUI06_15.csv", header  = TRUE)
+lui <- read.csv("data/raw_data/LUI06_15.csv", header  = TRUE)
 
 #stick with LUI at different years
 lui.only <- lui[, grep("LUI", names(lui))]
@@ -20,13 +20,13 @@ lui_total <- data.frame("Plot" = pp, "Year" = yy, "LUI" = lu)
 rm(lui, lui_tot, lui.only, lui.only2, pp, lu, yy)
 
 #load plant data
-plants <- read.csv("data/BE.plants08.16.csv", header = TRUE)
+plants <- read.csv("data/raw_data/BE.plants08.16.csv", header = TRUE)
 
 plants <- plants[plants$Year != 2016, ]
 
-plants <- plants[-c(1:5)]
+plants <- plants[-c(1:4)]
 
-### top50 --- select the 51 most common plant species
+### top26 --- select the 51 most common plant species
 top50 <- rev(sort(apply(plants[, -c(1:5)], 2, mean, na.rm = TRUE)))[1:n_plants]
 
 top50.short <- c("Poa_tri", "Poa_pra", "Alo_pra", "Dac_glo", "Tri_rep", "Tar_off", "Lol_per", "Arr_ela", 
@@ -66,7 +66,7 @@ write.table(spp_LUI, file = "data/spp_LUI.txt", row.names = FALSE, sep = "\t")
 
 ### Values of LUI and feasible interactions ####
 lui_seq <- seq(0.5, 3.0, by = 0.125)
-lui_seq2 <- c(lui_seq - 0.125/2, 3.0 + 0.125/2)
+lui_seq2 <- c(lui_seq - 0.25/2, 3.0 + 0.25/2)
 
 LUI_intervals <- data.frame()
 

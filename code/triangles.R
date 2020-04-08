@@ -119,6 +119,69 @@ projection_3sp_with_pairwise <- function(alpha, r, species){
 
 #ADD REAL DATA AND DO A LOOP TO PLOT EVERYTHING!
 load(file = "results/LUI_effects.RData")
+
+triangulate <- function(alpha, r, lui_value, combo){
+  
+  library(imager)
+  
+  #first, see which species are present through the whole list
+  common <- colnames(lui_alpha[[1]])
+  for (i in 2:length(lui_alpha)){
+    common <- Reduce(intersect, list(common, colnames(lui_alpha[[i]])))
+  }
+
+
+  #first triangle
+  triplet <- combn(common, 3)[, combo[1]]
+  lui <- lui_value[1]
+  projection_3sp_with_pairwise(alpha = lui_alpha[[lui]][triplet, triplet],
+                             r = lui_intrinsic_positive[[lui]][triplet, 1],
+                             species = triplet)
+
+  #second triangle
+  triplet <- combn(common, 3)[, combo[2]]
+  lui <- lui_value[2]
+  projection_3sp_with_pairwise(alpha = lui_alpha[[lui]][triplet, triplet],
+                               r = lui_intrinsic_positive[[lui]][triplet, 1],
+                               species = triplet)
+  
+  #third triangle
+  triplet <- combn(common, 3)[, combo[3]]
+  lui <- lui_value[3]
+  projection_3sp_with_pairwise(alpha = lui_alpha[[lui]][triplet, triplet],
+                               r = lui_intrinsic_positive[[lui]][triplet, 1],
+                               species = triplet)
+  
+}
+
+lui_value <- c(1, 6, 11) #3 different values from 1 to 11
+combo <- 2 #scenarios from 1 to 20
+triangulate(lui_alpha, lui_intrinsic_positive, lui_value, combo)
+
+dev.off()
+
+
+common <- colnames(lui_alpha[[1]])
+for (i in 2:length(lui_alpha)){
+  common <- Reduce(intersect, list(common, colnames(lui_alpha[[i]])))
+}
+
+#select the specific triplet
+png("figures/attempt1.png", width = 18, height = 18, units = "in", res = 320)
+lui_value <- c(1, 6, 11) #3 different values from 1 to 11
+combo <- c(1, 2, 3) #3 scenarios from 1 to 20
+triplet <- combn(common, 3)[, combo[1]]
+lui <- lui_value[1]
+par(mar=c(3, 3, 3, 3))
+projection_3sp_with_pairwise(alpha = lui_alpha[[lui]][triplet, triplet],
+                             r = lui_intrinsic_positive[[lui]][triplet, 1],
+                             species = triplet)
+dev.off()
+try <- load.image("figures/attempt1.png")
+
+par(mfrow = c(2, 2))
+plot(try)
+
 combo <- 2:4
 png("figures/paper_figures/triangles.png", width = 66, height = 6, units = "in", res = 320)
 par(mfrow = c(1, 11))

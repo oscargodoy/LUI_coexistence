@@ -6,7 +6,7 @@ coex3 <- read.csv(file = "results/results-LUI_coexistence-3spp.csv")
 coex3$feasibility <- as.factor(coex3$feasibility)
 
 #ridges
-library(ggplot)
+library(ggplot2)
 library(ggpubr)
 library(ggridges)
 
@@ -160,10 +160,14 @@ SFD3 <- ggplot(data = coex3, aes(x = SFD, y = LUI)) +
 
 #put them together
 ggarrange(SND2, SFD2, SND3, SFD3,
-                  ncol = 2, nrow = 2,
-                  common.legend = TRUE,
-                  legend = "right",
-                  align = "hv")
+          ncol = 2, nrow = 2,
+          common.legend = TRUE,
+          legend = "right",
+          align = "hv",
+          labels = "AUTO",
+          font.label = list(size = size_text + 5),
+          hjust = -1,
+          vjust = 3)
 
 ggsave("figures/paper_figures/Fig1.png", device = "png",
        dpi = 320, width = size_figure[1], height = size_figure[2])

@@ -1423,6 +1423,8 @@ for (i in 1:length(lui_alpha)){
   intras <- as.vector(diag(alpha));
   diag(alpha) <- NA; inters <- as.vector(alpha); inters <- inters[!is.na(inters)]
   intrinsic <- as.vector(lui_intrinsic_positive[[i]][, 1])
+  lui <- as.vector(lui_intrinsic_positive[[i]][, 2])
+  species_names <- as.vector(rownames(lui_intrinsic_positive[[i]]))
   
   #loop within each LUI level
   n <- 999 #number of random replicates
@@ -1431,7 +1433,10 @@ for (i in 1:length(lui_alpha)){
   
   for (j in 1:n){
     #output random intrinsic
-    rintrinsic[[j]] <- abs(sample(sort(intrinsic) + randomize(intrinsic)))
+    rintrinsic[[j]] <- as.matrix(data.frame(
+      "intrinsic" = abs(sample(sort(intrinsic) + randomize(intrinsic))),
+      "lui" = lui))
+    rownames(rintrinsic[[i]]) <- species_names
     
     #define random
     random <- 1 - diag(length(intras))
@@ -1451,6 +1456,28 @@ for (i in 1:length(lui_alpha)){
   }
   random_intrinsic[[i]] <- rintrinsic
   random_alpha[[i]] <- ralpha
+}
+
+#modify list intrinsic
+r_intr <- random_intrinsic
+random_intrinsic <- list()
+time <- 0
+for (i in 1:length(r_intr)){
+  for (j in 1:length(r_intr[[i]])){
+    time <- time + 1
+    random_intrinsic[[time]] <- r_intr[[i]][[j]]
+  }
+}
+
+#modify list alpha
+r_alpha <- random_alpha
+random_alpha <- list()
+time <- 0
+for (i in 1:length(r_alpha)){
+  for (j in 1:length(r_alpha[[i]])){
+    time <- time + 1
+    random_alpha[[time]] <- r_alpha[[i]][[j]]
+  }
 }
 
 #write RDS
@@ -1478,6 +1505,37 @@ ggarrange(ggdensity(intras,
           ncol = 1, nrow = 4, align = "v")
 ```
 
+```{r random_image_cluster}
+#save image for random results in the cluster
+intrinsic <- readRDS("results/random/random_intrinsic.RDS")
+alpha <- readRDS("results/random/random_alpha.RDS")
+
+#read combos for 2 and 3 species
+combos_lui2 <- readRDS("results/selected_combos/combos2.rds")
+combos_lui3 <- readRDS("results/selected_combos/combos3.rds")
+
+#settings and loop
+n <- 999
+t <- 0
+combos2 <- list()
+combos3 <- list()
+for(i in 1:length(combos_lui2)){
+  for (j in 1:n){
+    t <- t + 1
+    combos2[[t]] <- combos_lui2[[i]]
+    combos3[[t]] <- combos_lui3[[i]]
+  }
+}
+
+#keep only desired elements
+rm(list=ls()[! ls() %in% c("alpha", "intrinsic", "combos2", "combos3")])
+
+#save as image for the cluster
+save.image(file = "cluster/random_cluster.RData")
+
+#clean
+rm(list = ls())
+```
 
 
 

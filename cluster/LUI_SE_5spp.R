@@ -13,7 +13,6 @@ library(foreach)
 library(doParallel)
 library(parallel)
 library(MASS)
-library(doSNOW)
 
 #input parameters:
 #alpha = competition strenght matrix 
@@ -119,20 +118,20 @@ str_coex_combos <- function(alpha, intrinsic, combos){
     
     ii <- subset(intrinsic[[i]], rownames(intrinsic[[i]]) %in% ll)
     #this is niche differences
-    results_combo[j, 1] <- 10^Omega(mm)
+    results_combo[j, 1] <- tryCatch({10^Omega(mm)}, error = function(e){NA})
     #this is fitness differences
-    results_combo[j, 2] <- theta(mm, ii[, 1])
-    co <- compute_overlap(mm, 1000)
+    results_combo[j, 2] <- tryCatch({theta(mm, ii[, 1])}, error = function(e){NA})
+    co <- tryCatch({compute_overlap(mm, 1000)}, error = function(e){NA})
     #this is community overlap
-    results_combo[j, 3] <- co$overlap
+    results_combo[j, 3] <- tryCatch({co$overlap}, error = function(e){NA})
     #this is community differential
-    results_combo[j, 4] <- co$Omega - co$Omega_all
+    results_combo[j, 4] <- tryCatch({co$Omega - co$Omega_all}, error = function(e){NA})
     #this is whether all speceis can coexist
-    results_combo[j, 5] <- test_feasibility(mm, ii[, 1]) 
+    results_combo[j, 5] <- tryCatch({test_feasibility(mm, ii[, 1])}, error = function(e){NA}) 
     #this is whether pairs do not coexist but the multispecies assemblage does
-    results_combo[j, 6] <- sum(test_feasibility_pairs(mm, ii[, 1])$feasibility) /
-      length(test_feasibility_pairs(mm, ii[, 1])$feasibility)
-    results_combo[j, 7] <- unique(intrinsic[[i]][, 2])
+    results_combo[j, 6] <- tryCatch({sum(test_feasibility_pairs(mm, ii[, 1])$feasibility) /
+      length(test_feasibility_pairs(mm, ii[, 1])$feasibility)}, error = function(e){NA})
+    results_combo[j, 7] <- tryCatch({unique(intrinsic[[i]][, 2])}, error = function(e){NA})
   }
   return(results_combo)
 }
