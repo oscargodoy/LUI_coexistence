@@ -55,6 +55,7 @@ richness_full_comm <- cbind(lui_total, rich)
 richness_full_comm$Year <- as.factor(richness_full_comm$Year)
 
 #########################################
+lui_total$Year <- as.factor(lui_total$Year)
 
 #PLOTTING
 library(ggplot2) #load ggplot2
@@ -95,10 +96,14 @@ ggarrange(box, lui_rich_full, align = "h", widths = c(2, 3))
 ggsave("figures/LUI_richness_full.png", width = 8, height = 4, dpi = 320)
 
 
-##### SELECT 26 MOST COMMON
+##### Subset by region
+
+region <- "SEG" #options: "AEG" "HEG" "SEG"
 
 #load LUI data
 lui <- read.csv("data/raw_data/LUI06_15.csv", header  = TRUE)
+lui$Plot <- substring(lui$Plot, 1, 3)
+lui <- subset(lui, Plot == region)
 
 #stick with LUI at different years
 lui.only <- lui[, grep("LUI", names(lui))]
@@ -117,6 +122,8 @@ rm(lui, lui_tot, lui.only, lui.only2, pp, lu, yy)
 
 #load plant data
 plants <- read.csv("data/raw_data/BE.plants08.16.csv", header = TRUE)
+plants$EP_PlotID <- substring(plants$EP_PlotID, 1, 3)
+plants <- subset(plants, EP_PlotID == region)
 
 plants <- plants[plants$Year != 2016, ]
 
@@ -125,13 +132,18 @@ plants <- plants[-c(1:5)]
 ### top50 --- select the 51 most common plant species
 top50 <- rev(sort(apply(plants[, -c(1:5)], 2, mean, na.rm = TRUE)))[1:50]
 
-top50.short <- c("Poa_tri", "Poa_pra", "Alo_pra", "Dac_glo", "Tri_rep", "Tar_off", "Lol_per", "Arr_ela", 
-                 "Fes_rub", "Fes_pra", "Tri_fla", "Ely_rep", "Tri_pra", "Ran_rep", "Bro_ere", "Ran_acr", 
-                 "Bro_hor", "Pla_lan", "Ant_syl", "Her_sph", "Gal_mol", "Hol_lan", "Hel_pub", "Car_hir",
-                 "Bra_pin", "Pha_aru", "Ant_odo", "Ver_cha", "Fes_ovi", "Rum_ace", "Des_ces", "Phl_pra", 
-                 "Agr_sto", "Cyn_cri", "Cir_ole", "Cre_bie", "Cer_hol", "Pla_med", "Thy_pul", "Urt_dio",
-                 "Lol_mul", "Cir_arv", "Ran_bul", "Tri_dub", "Lot_cor", "Car_car", "Leo_his", "Vic_sep",
-                 "Med_lup", "Pru_spp")#, "Sym_off")
+#top50.short <- c("Poa_tri", "Poa_pra", "Alo_pra", "Dac_glo", "Tri_rep", "Tar_off", "Lol_per", "Arr_ela", 
+#                 "Fes_rub", "Fes_pra", "Tri_fla", "Ely_rep", "Tri_pra", "Ran_rep", "Bro_ere", "Ran_acr", 
+#                 "Bro_hor", "Pla_lan", "Ant_syl", "Her_sph", "Gal_mol", "Hol_lan", "Hel_pub", "Car_hir",
+#                 "Bra_pin", "Pha_aru", "Ant_odo", "Ver_cha", "Fes_ovi", "Rum_ace", "Des_ces", "Phl_pra", 
+#                 "Agr_sto", "Cyn_cri", "Cir_ole", "Cre_bie", "Cer_hol", "Pla_med", "Thy_pul", "Urt_dio",
+#                 "Lol_mul", "Cir_arv", "Ran_bul", "Tri_dub", "Lot_cor", "Car_car", "Leo_his", "Vic_sep",
+#                 "Med_lup", "Pru_spp")#, "Sym_off")
+
+top50.short <- c("Poa_tri", "Alo_pra", "Tri_fla", "Tri_rep", "Dac_glo", "Fes_rub", "Bro_ere", "Ran_acr", "Tri_pra",
+                 "Tar_off", "Lol_per", "Hel_pub", "Gal_mol", "Poa_pra", "Her_sph", "Arr_ela", "Ant_syl", "Fes_pra",
+                 "Pla_lan", "Ant_odo", "Cyn_cri", "Thy_pul", "Rum_ace", "Bro_hor", "Fes_ovi", "Pla_med")
+
 
 plants <- plants[, match(names(top50), names(plants))] #dataset with the 51 most common plant species
 names(plants) <- top50.short #give them standard names
@@ -166,8 +178,16 @@ color.blind <- c("#999999", "#E69F00", "#56B4E9", "#009E73",
 (lui_rich_51 <- ggplot(data = spp_LUI, aes(x = LUI, y = Richness, colour = Year)) +
     geom_point(alpha = 0.15) + geom_smooth(alpha = 0, size = 1.1) +
     scale_x_continuous(limits = c(0.5, 3), breaks = seq(0.5, 3, by = 0.5)) +
-    scale_y_continuous(position = "left") + ylab("Richness (51 species community)") +
-    theme(legend.position = "none") + scale_colour_manual(values = color.blind))
+    scale_y_continuous(position = "left") +
+    ylab("Richness (26 species community)") +
+    xlab("Land use intensity (LUI)") +
+    ggtitle(paste(c("Region", region), collapse = " ")) +
+    theme(legend.position = "right") + scale_colour_manual(values = color.blind))
+
+ggsave(paste(c("figures/lui-richness_", region, ".png"), collapse = ""),
+       plot = lui_rich_51, dpi = 320,
+       height = 6, width = 8)
+
 
 #Chart LUI--DIVERSITY
 library(ggpubr)

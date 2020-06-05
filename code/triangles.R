@@ -1,5 +1,7 @@
 #function to create the triangles
 projection_3sp_with_pairwise <- function(alpha, r, species){
+  library(stringr)
+  species <- stringr::str_replace(string = species, pattern = "_", replacement = "-")
   make.bold <- function(x) as.expression(lapply(x, function(y) bquote(bold(.(y)))))
   par(mar = c(0, 0, 0, 0))
   D <- diag(1 / sqrt(diag(t(alpha) %*% alpha)))
@@ -116,117 +118,102 @@ projection_3sp_with_pairwise <- function(alpha, r, species){
        pos = c(1, 1, 3))
 }
 
+#load alpha and intrinsic
+load("results/LUI_effects.RData")
 
-#ADD REAL DATA AND DO A LOOP TO PLOT EVERYTHING!
-load(file = "results/LUI_effects.RData")
-
-triangulate <- function(alpha, r, lui_value, combo){
-  
-  library(imager)
-  
-  #first, see which species are present through the whole list
-  common <- colnames(lui_alpha[[1]])
-  for (i in 2:length(lui_alpha)){
-    common <- Reduce(intersect, list(common, colnames(lui_alpha[[i]])))
-  }
-
-
-  #first triangle
-  triplet <- combn(common, 3)[, combo[1]]
-  lui <- lui_value[1]
-  projection_3sp_with_pairwise(alpha = lui_alpha[[lui]][triplet, triplet],
-                             r = lui_intrinsic_positive[[lui]][triplet, 1],
-                             species = triplet)
-
-  #second triangle
-  triplet <- combn(common, 3)[, combo[2]]
-  lui <- lui_value[2]
-  projection_3sp_with_pairwise(alpha = lui_alpha[[lui]][triplet, triplet],
-                               r = lui_intrinsic_positive[[lui]][triplet, 1],
-                               species = triplet)
-  
-  #third triangle
-  triplet <- combn(common, 3)[, combo[3]]
-  lui <- lui_value[3]
-  projection_3sp_with_pairwise(alpha = lui_alpha[[lui]][triplet, triplet],
-                               r = lui_intrinsic_positive[[lui]][triplet, 1],
-                               species = triplet)
-  
-}
-
-lui_value <- c(1, 6, 11) #3 different values from 1 to 11
-combo <- 2 #scenarios from 1 to 20
-triangulate(lui_alpha, lui_intrinsic_positive, lui_value, combo)
-
-dev.off()
-
-
-common <- colnames(lui_alpha[[1]])
-for (i in 2:length(lui_alpha)){
-  common <- Reduce(intersect, list(common, colnames(lui_alpha[[i]])))
-}
-
-#select the specific triplet
-png("figures/attempt1.png", width = 18, height = 18, units = "in", res = 320)
-lui_value <- c(1, 6, 11) #3 different values from 1 to 11
-combo <- c(1, 2, 3) #3 scenarios from 1 to 20
-triplet <- combn(common, 3)[, combo[1]]
-lui <- lui_value[1]
-par(mar=c(3, 3, 3, 3))
-projection_3sp_with_pairwise(alpha = lui_alpha[[lui]][triplet, triplet],
-                             r = lui_intrinsic_positive[[lui]][triplet, 1],
-                             species = triplet)
-dev.off()
-try <- load.image("figures/attempt1.png")
-
-par(mfrow = c(2, 2))
-plot(try)
-
-combo <- 2:4
-png("figures/paper_figures/triangles.png", width = 66, height = 6, units = "in", res = 320)
-par(mfrow = c(1, 11))
-for (i in 1:length(lui_alpha)){
-  alpha <- lui_alpha[[i]][combo, combo]
-  diag(alpha) <- -1 * diag(alpha)
-  r <- lui_intrinsic_positive[[i]][combo]
-  projection_3sp_with_pairwise(alpha, r, species)
-}
-dev.off()
-
-for(i in 1:length(combn(nrow(lui_alpha[[1]]), 3))){
-  alpha <- lui_alpha[[1]][combn(nrow(lui_alpha[[1]]), 3)[, i],
-                          combn(nrow(lui_alpha[[1]]), 3)[, i]]
-  diag(alpha) <- diag(alpha) * (-1)
-  alpha <- alpha / max(abs(alpha))
-  r <- lui_intrinsic_positive[[1]][combn(nrow(lui_alpha[[1]]), 3)[, i]]
-  projection_3sp_with_pairwise(alpha, r, species = colnames(alpha))
-  print(alpha)
-  Sys.sleep(2)
-}
-
-
-png("figures/paper_figures/triangles_LUI_1.png", width = 88, height = 52, units = "in", res = 320)
+#LUI = 0.50
+lui <- 1 #1, 6 u 11
+n <- 1:ncol(combn(colnames(lui_alpha[[lui]]), 3))
+png("figures/all-triangles_LUI-A.png", width = 88, height = 52, units = "in", res = 320)
 par(mfrow = c(13, 22))
-for(i in 1:length(combn(nrow(lui_alpha[[1]]), 3))){
-  alpha <- lui_alpha[[1]][combn(nrow(lui_alpha[[1]]), 3)[, i],
-                          combn(nrow(lui_alpha[[1]]), 3)[, i]]
+for (i in 1:length(n)){
+  spp <- t(combn(colnames(lui_alpha[[lui]]), 3))[i, ]
+  alpha <- lui_alpha[[lui]][spp, spp]
   diag(alpha) <- diag(alpha) * (-1)
-  alpha <- alpha / max(abs(alpha))
-  r <- lui_intrinsic_positive[[1]][combn(nrow(lui_alpha[[1]]), 3)[, i]]
+  alpha <- alpha / max(alpha)
+  r <- lui_intrinsic_positive[[lui]][spp, 1]
   projection_3sp_with_pairwise(alpha, r, species = colnames(alpha))
 }
 dev.off()
 
-png("figures/paper_figures/triangles_LUI_1_abs.png", width = 88, height = 52, units = "in", res = 320)
+#selected triangle for LUI = 0.50
+png("figures/triangle_LUI-A.png", width = 15, height = 15, units = "in", res = 320)
+lui <- 1 #1, 6 u 11
+n <- 161
+spp <- t(combn(colnames(lui_alpha[[lui]]), 3))[n, ]
+alpha <- lui_alpha[[lui]][spp, spp]
+diag(alpha) <- diag(alpha) * (-1)
+alpha <- alpha / max(alpha)
+r <- lui_intrinsic_positive[[lui]][spp, 1]
+projection_3sp_with_pairwise(alpha, r, species = colnames(alpha))
+dev.off()
+
+
+#LUI = 1.75
+lui <- 6 #1, 6 u 11
+n <- 1:ncol(combn(colnames(lui_alpha[[lui]]), 3))
+png("figures/all-triangles_LUI-B.png", width = 88, height = 52, units = "in", res = 320)
+par(mfrow = c(16, 17))
+for (i in 1:(length(n)/3)){
+  spp <- t(combn(colnames(lui_alpha[[lui]]), 3))[i, ]
+  alpha <- lui_alpha[[lui]][spp, spp]
+  diag(alpha) <- diag(alpha) * (-1)
+  alpha <- alpha / max(alpha)
+  r <- lui_intrinsic_positive[[lui]][spp, 1]
+  projection_3sp_with_pairwise(alpha, r, species = colnames(alpha))
+}
+dev.off()
+
+#selected triangle for LUI = 1.75
+png("figures/triangle_LUI-B.png", width = 15, height = 15, units = "in", res = 320)
+lui <- 6 #1, 6 u 11
+n <- 167
+spp <- t(combn(colnames(lui_alpha[[lui]]), 3))[n, ]
+alpha <- lui_alpha[[lui]][spp, spp]
+diag(alpha) <- diag(alpha) * (-1)
+alpha <- alpha / max(alpha)
+r <- lui_intrinsic_positive[[lui]][spp, 1]
+projection_3sp_with_pairwise(alpha, r, species = colnames(alpha))
+dev.off()
+
+
+#LUI = 3.00
+lui <- 11 #1, 6 u 11
+n <- 1:ncol(combn(colnames(lui_alpha[[lui]]), 3))
+png("figures/all-triangles_LUI-C.png", width = 88, height = 52, units = "in", res = 320)
 par(mfrow = c(13, 22))
-for(i in 1:length(combn(nrow(lui_alpha[[1]]), 3))){
-  alpha <- lui_alpha[[1]][combn(nrow(lui_alpha[[1]]), 3)[, i],
-                          combn(nrow(lui_alpha[[1]]), 3)[, i]]
-  alpha <- abs(alpha / max(abs(alpha)))
-  r <- lui_intrinsic_positive[[1]][combn(nrow(lui_alpha[[1]]), 3)[, i]]
+for (i in 1:length(n)){
+  spp <- t(combn(colnames(lui_alpha[[lui]]), 3))[i, ]
+  alpha <- lui_alpha[[lui]][spp, spp]
+  diag(alpha) <- diag(alpha) * (-1)
+  alpha <- alpha / max(alpha)
+  r <- lui_intrinsic_positive[[lui]][spp, 1]
   projection_3sp_with_pairwise(alpha, r, species = colnames(alpha))
 }
 dev.off()
 
+#selected triangle for LUI = 3.00
+png("figures/triangle_LUI-C.png", width = 15, height = 15, units = "in", res = 320)
+lui <- 11 #1, 6 u 11
+n <- 24
+spp <- t(combn(colnames(lui_alpha[[lui]]), 3))[n, ]
+alpha <- lui_alpha[[lui]][spp, spp]
+diag(alpha) <- diag(alpha) * (-1)
+alpha <- alpha / max(alpha)
+r <- lui_intrinsic_positive[[lui]][spp, 1]
+projection_3sp_with_pairwise(alpha, r, species = colnames(alpha))
+dev.off()
+
+library(imager)
+a <- load.image("figures/triangle_LUI-A.png")
+b <- load.image("figures/triangle_LUI-B.png")
+c <- load.image("figures/triangle_LUI-C.png")
+
+png("figures/paper_figures/FigX.png", width = 60, height = 20, units = "in", res = 320)
+par(mfrow = c(1, 3))
+plot(a, axes = FALSE, xlab = '', ylab = '')
+plot(b, axes = FALSE, xlab = '', ylab = '')
+plot(c, axes = FALSE, xlab = '', ylab = '')
+dev.off()
 
 

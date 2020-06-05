@@ -1,3 +1,4 @@
+source("mess/Code/saavedra_code/toolbox_coexistence.R")
 n <- 1000 #times to run the loop
 res_om1 <- NULL
 res_om2 <- NULL
@@ -5,7 +6,7 @@ for (i in 1:n){
   alpha <- matrix(abs(rnorm(9)), 3, 3)
   res_om1 <- c(res_om1, Omega(alpha))
   res_om2 <- c(res_om2, compute_overlap(alpha, 1000)$Omega)
-  cat((i/n)*100, "%")
+  cat((i/n)*100, "%\n")
 }
 
 res <- data.frame("Omega_simple" = 10^(res_om1),
@@ -14,11 +15,15 @@ res <- data.frame("Omega_simple" = 10^(res_om1),
 
 par(mfrow = c(1, 2))
 plot(res$Omega_simple, res$Omega_overlap,
-     xlab = "SND from:  10^(Omega(alpha))",
-     ylab = "SND from:  compute_overlap(alpha)$Omega",
-     main = "Serguei Saavedra's"); abline(lm(res$Omega_overlap ~ res$Omega_simple))
+     xlab = "SND from: 10^(Omega(alpha))",
+     ylab = "SND from: compute_overlap(alpha)$Omega",
+     main = "Serguei Saavedra & Messylab");
+abline(lm(res$Omega_overlap ~ res$Omega_simple), lwd = 2, col = "grey50");
+abline(0, 1, lty = 2, lwd = 2, col = "blue")
 
 plot(res$exp_Omega_simple, res$Omega_overlap,
-     xlab = "SND from:  exp(Omega(alpha))",
+     xlab = "SND from: exp(Omega(alpha))",
      ylab = " ",
-     main = "Will Petry's"); abline(lm(res$Omega_overlap ~ res$exp_Omega_simple))
+     main = "Will Petry\n('StructuralCoexistence' code)");
+abline(lm(res$Omega_overlap ~ res$exp_Omega_simple), lwd = 2, col = "grey50");
+abline(0, 1, lty = 2, lwd = 2, col = "blue")
