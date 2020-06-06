@@ -54,6 +54,9 @@ rqn2.summ <- summary(rq(SND ~ LUI, data = coex2, tau = seq(0.1, 0.9, by = 0.1)))
 rqf2.summ <- summary(rq(SFD ~ LUI, data = coex2, tau = seq(0.1, 0.9, by = 0.1)))
 rqn3.summ <- summary(rq(SND ~ LUI, data = coex3, tau = seq(0.1, 0.9, by = 0.1)))
 rqf3.summ <- summary(rq(SFD ~ LUI, data = coex3, tau = seq(0.1, 0.9, by = 0.1)))
+rqn.random.summ <- summary(rq(SND ~ LUI, data = random, tau = seq(0.1, 0.9, by = 0.1)))
+rqf.random.summ <- summary(rq(SFD ~ LUI, data = random, tau = seq(0.1, 0.9, by = 0.1)))
+
 
 par(mfrow=c(2,2))
 
@@ -65,10 +68,11 @@ for(i in 1:length(rqn2.summ)) {
   sd[i] <- rqn2.summ[[i]]$coefficients[2,2]
 }
 plot(seq(0.1, 0.9, by = 0.1), mean, pch = 16, cex=1.5, ylab="Estimate", xlab ="Quantile",
-     ylim= c(min(mean)-0.01, max(mean)+0.02), cex.lab=1.3, main="Niche differences 2sp")
+     ylim= c(min(mean)-0.03, max(mean)+0.02), cex.lab=1.3, main="Structural niche differences \n2 species combination")
 axis(side=1, at=seq(0.1, 0.9, by = 0.1))
 segments(seq(0.1, 0.9, by = 0.1),mean-sd, seq(0.1, 0.9, by = 0.1),mean+sd)
-abline(h=0.02, col="red", lty=2)
+abline(h=-0.00965, col="red", lty=2)
+text("n.s", x=0.15, y=0.01)
 
 # 2 sp fitness
 mean <- as.vector(matrix(nrow=1, ncol=length(rqf2.summ), NA))
@@ -78,10 +82,11 @@ for(i in 1:length(rqf2.summ)) {
   sd[i] <- rqf2.summ[[i]]$coefficients[2,2]
 }
 plot(seq(0.1, 0.9, by = 0.1), mean, pch = 16, cex=1.5, ylab="Estimate", xlab ="Quantile",
-     ylim= c(min(mean)-0.7, max(mean)+0.7), cex.lab=1.3, main="Fitness differences 2sp")
+     ylim= c(min(mean)-0.9, max(mean)+0.7), cex.lab=1.3, main="Structural fitness differences \n2 species combination")
 axis(side=1, at=seq(0.1, 0.9, by = 0.1))
 segments(seq(0.1, 0.9, by = 0.1),mean-sd, seq(0.1, 0.9, by = 0.1),mean+sd)
-abline(h=1.4, col="red", lty=2)
+abline(h=-1.71944, col="red", lty=2)
+text("n.s", x=0.15, y=-1.3)
 
 # 3 sp niche
 mean <- as.vector(matrix(nrow=1, ncol=length(rqn3.summ), NA))
@@ -91,10 +96,11 @@ for(i in 1:length(rqn3.summ)) {
   sd[i] <- rqn3.summ[[i]]$coefficients[2,2]
 }
 plot(seq(0.1, 0.9, by = 0.1), mean, pch = 16, cex=1.5, ylab="Estimate", xlab ="Quantile",
-     ylim= c(min(mean)-0.14, max(mean)+0.02), cex.lab=1.3, main="Niche differences 3sp")
+     ylim= c(min(mean)-0.14, max(mean)+0.08), cex.lab=1.3, main="Structural niche differences \n3 species combination")
 axis(side=1, at=seq(0.1, 0.9, by = 0.1))
 segments(seq(0.1, 0.9, by = 0.1),mean-sd, seq(0.1, 0.9, by = 0.1),mean+sd)
-abline(h=0.02, col="red", lty=2)
+abline(h=-0.01, col="red", lty=2)
+text("n.s", x=0.15, y=0.03)
 
 # 3 sp fitness
 mean <- as.vector(matrix(nrow=1, ncol=length(rqf3.summ), NA))
@@ -104,7 +110,13 @@ for(i in 1:length(rqf3.summ)) {
   sd[i] <- rqf3.summ[[i]]$coefficients[2,2]
 }
 plot(seq(0.1, 0.9, by = 0.1), mean, pch = 16, cex=1.5, ylab="Estimate", xlab ="Quantile",
-     ylim= c(min(mean)-3, max(mean)+0.7), cex.lab=1.3, main="Fitness differences 3sp")
+     ylim= c(min(mean)-0.5, max(mean)+0.7), cex.lab=1.3, main="Structural niche differences \n3 species combination")
 axis(side=1, at=seq(0.1, 0.9, by = 0.1))
 segments(seq(0.1, 0.9, by = 0.1),mean-sd, seq(0.1, 0.9, by = 0.1),mean+sd)
-abline(h=1.4, col="red", lty=2)
+abline(h=-0.5, col="red", lty=2)
+text("n.s", x=0.15, y=0)
+
+# random niche
+
+
+# random fitness

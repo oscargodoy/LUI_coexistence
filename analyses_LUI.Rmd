@@ -36,10 +36,6 @@ And then we start by the LUI dataset. We remove the undesired years: 2006 and 20
 #load LUI data
 lui <- read.csv(paste(raw_path, "LUI06_15.csv", sep = "/"), header  = TRUE)
 
-#select only the site AEG
-lui$Plot <- substring(lui$Plot, 1, 3)
-lui <- subset(lui, Plot == "AEG")
-
 #stick with LUI at different years
 lui.only <- lui[, grep("LUI", names(lui))]
 lui.only2 <- lui.only[, -c(1:2)] ## remove 2006 and 2007
@@ -88,25 +84,6 @@ plant_only <- plants[-c(1:4)]
 ### top --- select the most common plant species
 top <- rev(sort(apply(plant_only, 2, mean, na.rm = TRUE)))[1:n_plants]
 
-top.long <- c(
-"Poa trivialis", "Poa pratensis", "Alopecurus pratensis",                
-"Dactylis glomerata", "Trifolium repens", "Taraxacum officinale",
-"Lolium perenne", "Arrhenatherum elatius", "Festuca rubra",
-"Festuca pratensis", "Trisetum flavescens", "Elymus repens",
-"Trifolium pratense", "Ranunculus repens", "Bromus erectus",
-"Ranunculus acris", "Bromus hordeaceus", "Plantago lanceolata",
-"Achillea millefolium", "Anthriscus sylvestris", "Heracleum sphondylium",
-"Galium mollugo", "Holcus lanatus", "Helictotrichon pubescens",
-"Carex hirta", "Brachypodium pinnatum", "Phalaris arundinacea",
-"Anthoxanthum odoratum", "Veronica chamaedrys", "Festuca ovina",
-"Rumex acetosa", "Deschampsia cespitosa", "Phleum pratense",
-"Agrostis stolonifera", "Cynosurus cristatus", "Cirsium oleraceum",
-"Crepis biennis", "Cerastium holosteoides", "Plantago media",
-"Thymus pulegioides", "Urtica dioica", "Lolium multiflorum",
-"Cirsium arvense", "Ranunculus bulbosus", "Trifolium dubium",
-"Lotus corniculatus", "Carum carvi", "Leontodon hispidus",
-"Vicia sepium", "Medicago lupulina")
-
 #short standard names for the selected plants --- WARNING: CURRENTLY, A MANUAL STEP
 top.short <- c("Poa_tri", "Poa_pra", "Alo_pra", "Dac_glo", "Tri_rep", "Tar_off",
                "Lol_per", "Arr_ela", "Fes_rub", "Fes_pra", "Tri_fla", "Ely_rep",
@@ -116,10 +93,8 @@ top.short <- c("Poa_tri", "Poa_pra", "Alo_pra", "Dac_glo", "Tri_rep", "Tar_off",
                "Rum_ace", "Des_ces", "Phl_pra", "Agr_sto", "Cyn_cri", "Cir_ole",
                "Cre_bie", "Cer_hol", "Pla_med", "Thy_pul", "Urt_dio", "Lol_mul",
                "Cir_arv", "Ran_bul", "Tri_dub", "Lot_cor", "Car_car", "Leo_his",
-               "Vic_sep", "Med_lup")
+                "Vic_sep", "Med_lup")
 
-spp_table <- data.frame("Abbreviation" = top.short, "Species" = top.long)
-write.csv(spp_table, "results/species_table.csv")
 
 #sum all the other plant species per row
 rest <- apply(plant_only[, -match(names(top), names(plant_only))], 1, sum, na.rm = TRUE)
@@ -149,7 +124,7 @@ The second one corresponds to the presence or absence of the 26 most common plan
 
 ```{r restructure_plants_qualit}
 #this chunk depends on chunk(s): restructure_lui, restructure_plants_quanti
-plant_only <- plant_only[, c(1:26)]
+plant_only <- plant_only[, c(1:50)]
 
 #change to presence/absence data (0 or 1)
 for (i in 1:nrow(plant_only)){
@@ -241,7 +216,7 @@ Then, we apply an equivalent procedure to obtain the richness by datapoint of ou
 
 ```{r lui_richness_26spp_comm}
 #this chunk depends on chunk(s): restructure_lui, lui_richness_full_comm
-community <- 26 #species
+community <- 50 #species
 
 #dataset with the most common plant species
 plants <- plants[, match(names(top[1:community]), names(plants))]
@@ -250,20 +225,20 @@ plants <- plants[, match(names(top[1:community]), names(plants))]
 names(plants) <- top.short[1:community]
 
 #number of species per plot
-rich_26spp <- apply(plants, 1, sum, na.rm = TRUE)
+rich_50spp <- apply(plants, 1, sum, na.rm = TRUE)
 
 #merge lui and richness
-richness_26spp_comm <- cbind(lui_total, rich_26spp)
+richness_50spp_comm <- cbind(lui_total, rich_50spp)
 
 #year as factor for plotting
-richness_26spp_comm$Year <- as.factor(richness_26spp_comm$Year)
+richness_50spp_comm$Year <- as.factor(richness_50spp_comm$Year)
 
 #save full community presence data
-write.table(richness_26spp_comm, "data/richness_26spp_comm.txt",
+write.table(richness_50spp_comm, "data/richness_50spp_comm.txt",
             row.names = FALSE, sep = "\t")
 
 #clean
-rm(lui_total, plants, rich_26spp)
+rm(lui_total, plants, rich_50spp)
 ```
 
 And, finally, with both data frames ready we can proceed to plot the data to describe the variability of LUI and the relationship between LUI and species richness for both the full and 26-species community.
@@ -299,12 +274,12 @@ lui_rich_full <- ggplot(data = richness_full_comm,
   theme(legend.position = "none") + scale_colour_manual(values = color.blind)
 
 #plot of the relationship between LUI and richness in different years (26-species comm)
-lui_rich_26spp <- ggplot(data = richness_26spp_comm,
-                         aes(x = LUI, y = rich_26spp, colour = Year)) +
+lui_rich_50spp <- ggplot(data = richness_50spp_comm,
+                         aes(x = LUI, y = rich_50spp, colour = Year)) +
   geom_point(alpha = 0.15) + geom_smooth(alpha = 0, size = 1.1) +
   scale_x_continuous(limits = c(0.5, 3), breaks = seq(0.5, 3, by = 0.5)) +
   scale_y_continuous(position = "left") +
-  ylab("Richness (26-species community)") +
+  ylab("Richness (50-species community)") +
   theme(legend.position = "none") +
   scale_colour_manual(values = color.blind)
 
@@ -315,7 +290,7 @@ library(ggpubr)
 size_text <- 12
 
 #step one: combine the full community and 26-spp plots
-both_lui_rich <- ggarrange(lui_rich_full, lui_rich_26spp,
+both_lui_rich <- ggarrange(lui_rich_full, lui_rich_50spp,
                            nrow = 2, align = "hv",
                            labels = c("B", "C"),
                            font.label = list(size = size_text),
@@ -358,7 +333,7 @@ p_plant_only <- read.table("data/p_plant_only.txt", header = TRUE, sep = "\t")
 #calculate the percentage of presence of different richness values in the data
 max_comb <- NULL
 rich <- NULL
-for (i in 2:25){
+for (i in 2:42){
   rich <- c(rich, i)
   max_comb <- c(max_comb,
                 length(which(apply(p_plant_only, 1, sum) > i))
@@ -370,8 +345,8 @@ saturation <- data.frame("richness" = rich, "ratio" = max_comb)
 
 #plot `saturation`
 (ratio_combos <- ggplot(data = saturation, aes(x = richness, y = ratio)) +
-    scale_x_continuous(breaks = c(2, 3, 5, 7, 11, 17, 25)) +
-    ggtitle("Community of 26 species") +
+    scale_x_continuous(breaks = c(2, 3, 5, 7, 11, 17, 25, 37,42)) +
+    ggtitle("Community of 50 species") +
     xlab("Combinations' species richness") +
     ylab("Presence in the data (%)") +
     geom_line(size = 1.2, color = "grey") +
@@ -806,16 +781,20 @@ It is time to apply the structural stability framework. First, prepare the matri
 rm(list = ls())
 
 #load coefficients
-alpha <- as.matrix(read.table("results/interaction_matrix_lme_average_26spp.txt", header = TRUE, sep = "\t"))
-lui_modify_alpha <- as.matrix(read.table("results/lui_matrix_lme_average_26spp.txt", header = TRUE, sep = "\t"))
-intrinsic <- as.matrix(read.table("results/intrinsic_site_lui_average_lme_26spp.txt", header = TRUE, sep = "\t"))
+alpha <- as.matrix(read.table("results/interaction_matrix_lme_average_51.txt", header = TRUE, sep = "\t"))
+lui_modify_alpha <- as.matrix(read.table("results/lui_matrix_lme_average_51.txt", header = TRUE, sep = "\t"))
+intrinsic <- as.matrix(read.table("results/intrinsic_site_lui_average_lme_51.txt", header = TRUE, sep = "\t"))
 
 #species
-top.short <- c("Poa_tri", "Poa_pra", "Alo_pra", "Dac_glo", "Tri_rep", "Tar_off",
-               "Lol_per", "Arr_ela", "Fes_rub", "Fes_pra", "Tri_fla", "Ely_rep",
-               "Tri_pra", "Ran_rep", "Bro_ere", "Ran_acr", "Bro_hor", "Pla_lan",
-               "Ach_mil", "Ant_syl", "Her_sph", "Gal_mol", "Hol_lan", "Hel_pub",
-               "Car_hir", "Bra_pin")
+top.short <- c("Poa_tri", "Poa_pra", "Alo_pra", "Dac_glo", "Tri_rep", "Tar_sp",
+                 "Lol_per", "Arr_ela", "Fes_rub", "Fes_pra", "Tri_fla", "Ely_rep",
+                 "Tri_pra", "Ran_rep", "Bro_ere", "Ran_acr", "Bro_hor", "Pla_lan",
+                 "Ach_mil", "Ant_syl", "Her_sph", "Gal_mol", "Hol_lan", "Hel_pub",
+                 "Car_hir", "Bra_pin", "Pha_aru", "Ant_odo", "Ver_cha", "Fes_ovi",
+                 "Rum_ace", "Des_ces", "Phl_pra", "Agr_sto", "Cyn_cri", "Cir_ole",
+                 "Cre_bie", "Cer_hol", "Pla_med", "Thy_pul", "Urt_dio", "Lol_mul",
+                 "Cir_arv", "Ran_bul", "Tri_dub", "Lot_cor", "Car_car", "Leo_his",
+                 "Vic_sep", "Med_lup", "Pru_sp")
 
 #lui intervals
 lui <- seq(from = 0.5, to = 3, by = 0.25)
