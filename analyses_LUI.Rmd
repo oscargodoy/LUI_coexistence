@@ -864,13 +864,13 @@ combos2 <- combos2[, 1:(ncol(combos2) - 1)] #remove last column
 combos3 <- read.table("results/selected_combos/combos3.txt", sep = "\t", header = TRUE)
 combos3 <- combos3[, 1:(ncol(combos3) - 1)] #remove last column
 
-##load combos of 5 species
-#combos5 <- read.table("results/selected_combos/combos5.txt", sep = "\t", header = TRUE)
-#combos5 <- combos5[, 1:(ncol(combos5) - 1)] #remove last column
+#load combos of 5 species
+combos5 <- read.table("results/selected_combos/combos5.txt", sep = "\t", header = TRUE)
+combos5 <- combos5[, 1:(ncol(combos5) - 1)] #remove last column
 #
 ##load combos of 7 species
-#combos7 <- read.table("results/selected_combos/combos7.txt", sep = "\t", header = TRUE)
-#combos7 <- combos7[, 1:(ncol(combos7) - 1)] #remove last column
+combos7 <- read.table("results/selected_combos/combos7.txt", sep = "\t", header = TRUE)
+combos7 <- combos7[, 1:(ncol(combos7) - 1)] #remove last column
 #
 ##load combos of 11 species
 #combos11 <- read.table("results/selected_combos/combos11.txt", sep = "\t", header = TRUE)
@@ -938,47 +938,47 @@ saveRDS(lui_combos3, "results/selected_combos/combos3.rds")
 
 
 ##combinations of 5 species
-#for (i in 1:length(lui_alpha)){
-#  dd <- data.frame()
-#  for (j in 1:nrow(combos5)){
-#    include <- TRUE
-#    for (k in 1:ncol(combos5)){
-#      if (combos5[j, k] %in% rownames(lui_alpha[[i]])){
-#        #keep include as TRUE
-#      } else {
-#        include <- FALSE
-#      }
-#    }
-#    if (isTRUE(include)){
-#      dd <- rbind(dd, combos5[j, ])
-#    }
-#  }
-#  lui_combos5[[i]] <- dd
-#}
-#
-#saveRDS(lui_combos5, "results/selected_combos/combos5.rds")
+for (i in 1:length(lui_alpha)){
+  dd <- data.frame()
+  for (j in 1:nrow(combos5)){
+    include <- TRUE
+    for (k in 1:ncol(combos5)){
+      if (combos5[j, k] %in% rownames(lui_alpha[[i]])){
+        #keep include as TRUE
+      } else {
+        include <- FALSE
+      }
+    }
+    if (isTRUE(include)){
+      dd <- rbind(dd, combos5[j, ])
+    }
+  }
+  lui_combos5[[i]] <- dd
+}
+
+saveRDS(lui_combos5, "results/selected_combos/combos5.rds")
 #
 #
 #combinations of 7 species
-#for (i in 1:length(lui_alpha)){
-#  dd <- data.frame()
-#  for (j in 1:nrow(combos7)){
-#    include <- TRUE
-#    for (k in 1:ncol(combos7)){
-#      if (combos7[j, k] %in% rownames(lui_alpha[[i]])){
-#        #keep include as TRUE
-#      } else {
-#        include <- FALSE
-#      }
-#    }
-#    if (isTRUE(include)){
-#      dd <- rbind(dd, combos7[j, ])
-#    }
-#  }
-#  lui_combos7[[i]] <- dd
-#}
-#
-#saveRDS(lui_combos7, "results/selected_combos/combos7.rds")
+for (i in 1:length(lui_alpha)){
+  dd <- data.frame()
+  for (j in 1:nrow(combos7)){
+    include <- TRUE
+    for (k in 1:ncol(combos7)){
+      if (combos7[j, k] %in% rownames(lui_alpha[[i]])){
+        #keep include as TRUE
+      } else {
+        include <- FALSE
+      }
+    }
+    if (isTRUE(include)){
+      dd <- rbind(dd, combos7[j, ])
+    }
+  }
+  lui_combos7[[i]] <- dd
+}
+
+saveRDS(lui_combos7, "results/selected_combos/combos7.rds")
 #
 #
 ##combinations of 11 species
@@ -1214,6 +1214,8 @@ load(file = "results/LUI_effects.RData")
 #load the combos
 combos_lui2 <- readRDS("results/selected_combos/combos2.rds")
 combos_lui3 <- readRDS("results/selected_combos/combos3.rds")
+combos_lui5 <- readRDS("results/selected_combos/combos5.rds")
+combos_lui7 <- readRDS("results/selected_combos/combos7.rds")
 
 #parallel
 cores = detectCores()
@@ -1264,6 +1266,53 @@ for(i in 1:length(results_coex)){
 }
 
 write.csv(coex3, file = "results/results-LUI_coexistence-3spp.csv", row.names = FALSE)
+
+#compute combinations of 5 species
+results_coex <- list()
+results_coex <- foreach (i = 1:length(combos_lui5), .packages = "mvtnorm") %dopar% {
+  str_coex_combos(alpha = lui_alpha, intrinsic = lui_intrinsic_positive, combos = combos_lui5)
+}
+
+#specific changes to 3 species
+##re-structure results for 2 species
+coex5 <- data.frame()
+for(i in 1:length(results_coex)){
+  a <- data.frame("combos" = rownames(results_coex[[i]]),
+                                   "SND" = results_coex[[i]][, 1],
+                                   "SFD" = results_coex[[i]][,2],
+                                   "overlap" = results_coex[[i]][, 3],
+                                   "differential" = results_coex[[i]][, 4],
+                                   "feasibility" = results_coex[[i]][, 5],
+                                   "pair_to_all" = results_coex[[i]][, 6],
+                                   "LUI" = results_coex[[i]][, 7])
+  coex5 <- rbind(coex5, a)
+}
+
+write.csv(coex5, file = "results/results-LUI_coexistence-5spp.csv", row.names = FALSE)
+
+#compute combinations of 5 species
+results_coex <- list()
+results_coex <- foreach (i = 1:length(combos_lui7), .packages = "mvtnorm") %dopar% {
+  str_coex_combos(alpha = lui_alpha, intrinsic = lui_intrinsic_positive, combos = combos_lui7)
+}
+
+#specific changes to 3 species
+##re-structure results for 2 species
+coex7 <- data.frame()
+for(i in 1:length(results_coex)){
+  a <- data.frame("combos" = rownames(results_coex[[i]]),
+                                   "SND" = results_coex[[i]][, 1],
+                                   "SFD" = results_coex[[i]][,2],
+                                   "overlap" = results_coex[[i]][, 3],
+                                   "differential" = results_coex[[i]][, 4],
+                                   "feasibility" = results_coex[[i]][, 5],
+                                   "pair_to_all" = results_coex[[i]][, 6],
+                                   "LUI" = results_coex[[i]][, 7])
+  coex7 <- rbind(coex7, a)
+}
+
+write.csv(coex7, file = "results/results-LUI_coexistence-7spp.csv", row.names = FALSE)
+
 
 #STOP cluster
 stopCluster(cl) #stop cluster
