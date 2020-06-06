@@ -1502,7 +1502,7 @@ for (i in 1:length(lui_alpha)){
     rintrinsic[[j]] <- as.matrix(data.frame(
       "intrinsic" = abs(sample(sort(intrinsic) + randomize(intrinsic))),
       "lui" = lui))
-    rownames(rintrinsic[[i]]) <- species_names
+    rownames(rintrinsic[[j]]) <- species_names
     
     #define random
     random <- 1 - diag(length(intras))
