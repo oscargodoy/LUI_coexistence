@@ -90,14 +90,14 @@ feas11 <- as.data.frame(rbind(
 colnames(feas11) <- c("combos", "feasibility", "richness", "LUI")
 
 #remove coex files
-rm(coex2, coex3, coex5, coex7, coex11)
+rm(coex2, coex3, coex5, coex7)
 
 #create a unique data.frame
-feas <- rbind(feas2, feas3, feas5, feas7, feas11)
+feas <- rbind(feas2, feas3, feas5, feas7)
 feas$feasibility <- as.integer(feas$feasibility)
 
 #remove single feas files
-rm(feas2, feas3, feas5, feas7, feas11)
+rm(feas2, feas3, feas5, feas7)
 
 
 #create a df only with presence 
@@ -130,22 +130,26 @@ for (i in 1:nrow(feasible)){
 #clean everything
 rm(list=ls()[! ls() %in% c("feas", "feasible")])
 
-spp <- c("Poa_tri", "Poa_pra", "Alo_pra", "Dac_glo", "Tri_rep", "Tar_off",
+spp <- c("Poa_tri", "Poa_pra", "Alo_pra", "Dac_glo", "Tri_rep", "Tar_sp",
          "Lol_per", "Arr_ela", "Fes_rub", "Fes_pra", "Tri_fla", "Ely_rep",
          "Tri_pra", "Ran_rep", "Bro_ere", "Ran_acr", "Bro_hor", "Pla_lan",
          "Ach_mil", "Ant_syl", "Her_sph", "Gal_mol", "Hol_lan", "Hel_pub",
-         "Car_hir", "Bra_pin")
+         "Car_hir", "Bra_pin", "Pha_aru", "Ant_odo", "Ver_cha", "Fes_ovi",
+         "Rum_ace", "Des_ces", "Phl_pra", "Agr_sto", "Cyn_cri", "Cir_ole",
+         "Cre_bie", "Cer_hol", "Pla_med", "Thy_pul", "Urt_dio", "Lol_mul",
+         "Cir_arv", "Ran_bul", "Tri_dub", "Lot_cor", "Car_car", "Leo_his",
+         "Vic_sep", "Med_lup")
 feasible$species <- as.character(feasible$species)
 feasible$species <- factor(feasible$species,
                            levels = spp)
 
 #write feasible
-write.csv(feasible, "results/feasible_SupFig4.csv", row.names = FALSE)
+write.csv(feasible, "results/feasible_SupFig4_sin11.csv", row.names = FALSE)
 
 
 ####################### PLOT
 
-feasible <- read.csv("results/feasible_SupFig4.csv")
+feasible <- read.csv("results/feasible_SupFig4_sin11.csv")
 
 #plot our predictions of coexistence
 predictions <- ggplot(data = feasible, aes(x = LUI, y = species)) +
@@ -155,7 +159,7 @@ predictions <- ggplot(data = feasible, aes(x = LUI, y = species)) +
   xlab("Land use intensity (LUI)") +
   ylab("Plant species")
 
-ggsave(predictions, filename = "figures/predictions_feasibility_species.png", device = "png",
+ggsave(predictions, filename = "figures/predictions_feasibility_species_sin11.png", device = "png",
        width = 18, height = 10)
 
 
@@ -164,7 +168,7 @@ ggsave(predictions, filename = "figures/predictions_feasibility_species.png", de
 ###
 
 #number of plants
-n_plants <- 26
+n_plants <- 50
 
 #load LUI data
 lui <- read.csv("data/raw_data/LUI06_15.csv", header  = TRUE)
@@ -198,11 +202,15 @@ plant_only <- plants[-c(1:4)]
 top <- rev(sort(apply(plant_only, 2, mean, na.rm = TRUE)))[1:n_plants]
 
 #short standard names for the selected plants --- WARNING: CURRENTLY, A MANUAL STEP
-top.short <- c("Poa_tri", "Poa_pra", "Alo_pra", "Dac_glo", "Tri_rep", "Tar_off",
+top.short <- c("Poa_tri", "Poa_pra", "Alo_pra", "Dac_glo", "Tri_rep", "Tar_sp",
                "Lol_per", "Arr_ela", "Fes_rub", "Fes_pra", "Tri_fla", "Ely_rep",
                "Tri_pra", "Ran_rep", "Bro_ere", "Ran_acr", "Bro_hor", "Pla_lan",
                "Ach_mil", "Ant_syl", "Her_sph", "Gal_mol", "Hol_lan", "Hel_pub",
-               "Car_hir", "Bra_pin")
+               "Car_hir", "Bra_pin", "Pha_aru", "Ant_odo", "Ver_cha", "Fes_ovi",
+               "Rum_ace", "Des_ces", "Phl_pra", "Agr_sto", "Cyn_cri", "Cir_ole",
+               "Cre_bie", "Cer_hol", "Pla_med", "Thy_pul", "Urt_dio", "Lol_mul",
+               "Cir_arv", "Ran_bul", "Tri_dub", "Lot_cor", "Car_car", "Leo_his",
+               "Vic_sep", "Med_lup")
 
 plants <- plants[, match(names(top), names(plants))] #dataset with the 51 most common plant species
 names(plants) <- top.short #give them standard names
@@ -320,7 +328,7 @@ for (i in 1:nrow(observed)){
 
 #write observed
 observed$LUI <- as.numeric(as.character(observed$LUI))
-write.csv(observed, "results/observed_SupFig4.csv", row.names = FALSE)
+write.csv(observed, "results/observed_SupFig4_sin11.csv", row.names = FALSE)
 
 
 
@@ -330,14 +338,18 @@ write.csv(observed, "results/observed_SupFig4.csv", row.names = FALSE)
 
 #common to all subplots
 size_text <- 10
-spp <- c("Poa_tri", "Poa_pra", "Alo_pra", "Dac_glo", "Tri_rep", "Tar_off",
+spp <- c("Poa_tri", "Poa_pra", "Alo_pra", "Dac_glo", "Tri_rep", "Tar_sp",
          "Lol_per", "Arr_ela", "Fes_rub", "Fes_pra", "Tri_fla", "Ely_rep",
          "Tri_pra", "Ran_rep", "Bro_ere", "Ran_acr", "Bro_hor", "Pla_lan",
          "Ach_mil", "Ant_syl", "Her_sph", "Gal_mol", "Hol_lan", "Hel_pub",
-         "Car_hir", "Bra_pin")
+         "Car_hir", "Bra_pin", "Pha_aru", "Ant_odo", "Ver_cha", "Fes_ovi",
+         "Rum_ace", "Des_ces", "Phl_pra", "Agr_sto", "Cyn_cri", "Cir_ole",
+         "Cre_bie", "Cer_hol", "Pla_med", "Thy_pul", "Urt_dio", "Lol_mul",
+         "Cir_arv", "Ran_bul", "Tri_dub", "Lot_cor", "Car_car", "Leo_his",
+         "Vic_sep", "Med_lup")
 
 #plot of observed species by LUI
-observed <- read.csv("results/observed_SupFig4.csv")
+observed <- read.csv("results/observed_SupFig4_sin11.csv")
 observed$species <- factor(observed$species, levels = spp)
 levels(observed$species) <- str_replace(levels(observed$species), "_", replacement = "-")
 
@@ -358,7 +370,7 @@ observation_quan <- ggplot(data = observed, aes(x = LUI, y = species)) +
 
 
 #plot our predictions of coexistence
-feasible <- read.csv("results/feasible_SupFig4.csv")
+feasible <- read.csv("results/feasible_SupFig4_sin11.csv")
 feasible$species <- factor(feasible$species, levels = spp)
 levels(feasible$species) <- str_replace(levels(feasible$species), "_", replacement = "-")
 colnames(feasible)[2] <- "Richness"
@@ -458,7 +470,7 @@ ggarrange(observation_quan,
           ncol = 1, nrow = 6,
           align = "hv")
 
-ggsave(filename = "figures/quantitative_obs_pred.png", device = "png",
+ggsave(filename = "figures/quantitative_obs_pred_sin11.png", device = "png",
        width = 10, height = 20, limitsize = FALSE)
 
 
@@ -470,19 +482,23 @@ library(ggpubr)
 
 #common to all subplots
 size_text <- 15
-spp <- c("Poa_tri", "Poa_pra", "Alo_pra", "Dac_glo", "Tri_rep", "Tar_off",
+spp <- c("Poa_tri", "Poa_pra", "Alo_pra", "Dac_glo", "Tri_rep", "Tar_sp",
          "Lol_per", "Arr_ela", "Fes_rub", "Fes_pra", "Tri_fla", "Ely_rep",
          "Tri_pra", "Ran_rep", "Bro_ere", "Ran_acr", "Bro_hor", "Pla_lan",
          "Ach_mil", "Ant_syl", "Her_sph", "Gal_mol", "Hol_lan", "Hel_pub",
-         "Car_hir", "Bra_pin")
+         "Car_hir", "Bra_pin", "Pha_aru", "Ant_odo", "Ver_cha", "Fes_ovi",
+         "Rum_ace", "Des_ces", "Phl_pra", "Agr_sto", "Cyn_cri", "Cir_ole",
+         "Cre_bie", "Cer_hol", "Pla_med", "Thy_pul", "Urt_dio", "Lol_mul",
+         "Cir_arv", "Ran_bul", "Tri_dub", "Lot_cor", "Car_car", "Leo_his",
+         "Vic_sep", "Med_lup")
 
 #plot of observed species by LUI
-observed <- read.csv("results/observed_SupFig4.csv")
+observed <- read.csv("results/observed_SupFig4_sin11.csv")
 observed$species <- factor(observed$species, levels = spp)
 levels(observed$species) <- str_replace(levels(observed$species), "_", replacement = "-")
 
 #plot our predictions of coexistence
-feasible <- read.csv("results/feasible_SupFig4.csv")
+feasible <- read.csv("results/feasible_SupFig4_sin11.csv")
 feasible$species <- factor(feasible$species, levels = spp)
 levels(feasible$species) <- str_replace(levels(feasible$species), "_", replacement = "-")
 colnames(feasible)[2] <- "Richness"
@@ -529,11 +545,11 @@ tot_predicted_multispecies <- data.frame("Type" = "Predicted_multispecies",
 
 #bind them all
 total <- rbind(tot_observed, tot_predicted_pairs, tot_predicted_multispecies)
-write.csv(total, "results/observed_and_predicted.csv", row.names = FALSE)
+write.csv(total, "results/observed_and_predicted_sin11.csv", row.names = FALSE)
 
 
 #plotA
-total <- read.csv("results/observed_and_predicted.csv")
+total <- read.csv("results/observed_and_predicted_sin11.csv")
 total$Type <- as.factor(total$Type)
 total$Type <- factor(total$Type, levels = c("Observed", "Predicted_pairs", "Predicted_multispecies"))
 
@@ -559,7 +575,7 @@ colors_obs_pred <- c('#999999', "#fd7d3c", "#4291d7")
     theme(legend.position = "right",
           text = element_text(size = size_text))
 )
-ggsave(obs_pred, filename = "figures/observed_predicted.png", device = "png",
+ggsave(obs_pred, filename = "figures/observed_predicted_sin11.png", device = "png",
        width = 12, height = 6, limitsize = FALSE)
 
 
