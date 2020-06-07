@@ -263,7 +263,7 @@ rm(list=ls()[! ls() %in% c("LUI", "lui_seq", "top.short")])
 #sd and mean
 per_plot <- data.frame(
   "lui" = LUI$LUI_s,
-  "spp" = apply(LUI[, 5:30], MARGIN = 1, FUN = sum)
+  "spp" = apply(LUI[, 5:54], MARGIN = 1, FUN = sum)
 )
 deviation <- aggregate(spp ~ lui, data = per_plot, FUN = sd)
 deviation$spp <- round(deviation$spp)
@@ -283,11 +283,11 @@ lui_value <- NULL
 for(i in 1:length(lui_seq)){
   c <- 0
   for (j in which(LUI$LUI_s == lui_seq[i])){
-    if (sum(LUI[j, 5:30]) > c){
-      c <- sum(LUI[j, 5:30])
+    if (sum(LUI[j, 5:54]) > c){
+      c <- sum(LUI[j, 5:54])
     }
     lui_value <- c(lui_value, lui_seq[i])
-    any_spp <- c(any_spp, sum(LUI[j, 5:30]))
+    any_spp <- c(any_spp, sum(LUI[j, 5:54]))
   }
   max_spp <- c(max_spp, c)
 }
@@ -517,6 +517,8 @@ tot_observed <- data.frame("Type" = "Observed",
                            "species_number" = spp_mean$spp,
                            "species_sd" = deviation$spp)
 
+tot_observed$species_number <-  df[,2]
+
 #prepare predicted pairs
 tot_predicted <- aggregate(feasible ~ species + LUI, subset(feasible, Richness == 2), sum)
 for (i in 1:nrow(tot_predicted)){
@@ -531,7 +533,7 @@ tot_predicted_pairs <- data.frame("Type" = "Predicted_pairs",
                             "species_sd" = NA)
 
 #prepare predicted multispecies
-tot_predicted <- aggregate(feasible ~ species + LUI, subset(feasible, Richness > 2), sum)
+tot_predicted <- aggregate(feasible ~ species + LUI, subset(feasible, Richness == 3), sum)
 for (i in 1:nrow(tot_predicted)){
   if (tot_predicted$feasible[i] > 0){
     tot_predicted$feasible[i] <- 1
@@ -544,7 +546,8 @@ tot_predicted_multispecies <- data.frame("Type" = "Predicted_multispecies",
                                   "species_sd" = NA)
 
 #bind them all
-total <- rbind(tot_observed, tot_predicted_pairs, tot_predicted_multispecies)
+total <- rbind(tot_observed, tot_predicted_multispecies)
+total <- rbind(total, tot_predicted_pairs)
 write.csv(total, "results/observed_and_predicted_sin11.csv", row.names = FALSE)
 
 
@@ -571,7 +574,7 @@ colors_obs_pred <- c('#999999', "#fd7d3c", "#4291d7")
     scale_x_continuous(name = "Land use intensity (LUI)",
                        breaks = as.vector(unique(total$LUI))) +
     scale_y_continuous(name = "Number of species",
-                       breaks = seq(0, 26, 1)) +
+                       breaks = seq(0, 35, 1)) +
     theme(legend.position = "right",
           text = element_text(size = size_text))
 )

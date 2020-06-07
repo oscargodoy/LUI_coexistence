@@ -458,14 +458,14 @@ And then we need to compute the function for different richness levels. This is 
 #this chunk depends on chunk(s): saturation, function_selector
 
 #set a threshold (in %)
-#t <- 0
+t <- 0
 
 #compute and save the selected combos (TO DO IN THE CLUSTER OF COMPUTATION!)
-#combos2 <- selector(p_plant_only, n = 2, threshold = t)
-#write.table(combos2, "results/selected_combos/combos2.txt", row.names = FALSE, sep = "\t")
+combos2 <- selector(p_plant_only, n = 2, threshold = t)
+write.table(combos2, "results/selected_combos/combos2.txt", row.names = FALSE, sep = "\t")
 #
-#combos3 <- selector(p_plant_only, n = 3, threshold = t)
-#write.table(combos3, "results/selected_combos/combos3.txt", row.names = FALSE, sep = "\t")
+combos3 <- selector(p_plant_only, n = 3, threshold = t)
+write.table(combos3, "results/selected_combos/combos3.txt", row.names = FALSE, sep = "\t")
 #
 #combos5 <- selector(p_plant_only, n = 5, threshold = t)
 #write.table(combos5, "results/selected_combos/combos5.txt", row.names = FALSE, sep = "\t")
