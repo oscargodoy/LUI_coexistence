@@ -90,14 +90,17 @@ feas11 <- as.data.frame(rbind(
 colnames(feas11) <- c("combos", "feasibility", "richness", "LUI")
 
 #remove coex files
-rm(coex2, coex3, coex5, coex7)
+rm(coex2, coex3)
+#coex5, coex7)
 
 #create a unique data.frame
-feas <- rbind(feas2, feas3, feas5, feas7)
+feas <- rbind(feas2, feas3)
+#feas5, feas7)
 feas$feasibility <- as.integer(feas$feasibility)
 
 #remove single feas files
-rm(feas2, feas3, feas5, feas7)
+rm(feas2, feas3)
+#feas5, feas7)
 
 
 #create a df only with presence 
