@@ -464,14 +464,14 @@ predictions11 <- ggplot(data = subset(feasible, Richness == 11),
         axis.title.y = element_text(size = size_text + 5))
 
 #arrange them all
-ggarrange(observation_quan,
+ggarrange(#observation_quan,
           predictions2,
-          predictions3,
-          predictions5,
-          predictions7,
-          predictions11,
-          ncol = 1, nrow = 6,
-          align = "hv")
+          #predictions3,
+          #predictions5,
+          #predictions7,
+          #predictions11,
+          ncol = 1, nrow = 1)
+          #align = "hv")
 
 ggsave(filename = "figures/quantitative_obs_pred_sin11.png", device = "png",
        width = 10, height = 20, limitsize = FALSE)
@@ -558,11 +558,11 @@ write.csv(total, "results/observed_and_predicted_sin11.csv", row.names = FALSE)
 total <- read.csv("results/observed_and_predicted_sin11.csv")
 total$Type <- as.factor(total$Type)
 total$Type <- factor(total$Type, levels = c("Observed", "Predicted_pairs", "Predicted_multispecies"))
-
+total <- total[total$Type != "Predicted_multispecies", , drop=FALSE] # we remove the multispecies predictions
 
 #plot species number vs LUI by observed or predicted
 library(ggplot2)
-colors_obs_pred <- c('#999999', "#fd7d3c", "#4291d7")
+colors_obs_pred <- c('#999999',"#4291d7")
 (obs_pred <- ggplot(data = NULL, aes(x = LUI, y = species_number)) +
     geom_ribbon(data = subset(total, Type == "Observed"),
                 aes(ymin = (species_number - species_sd),
@@ -571,9 +571,9 @@ colors_obs_pred <- c('#999999', "#fd7d3c", "#4291d7")
     geom_line(data = total, aes(linetype = Type, color = Type), size = 1.5) +
     geom_point(data = total, aes(color = Type), size = 3) +
     scale_linetype_manual(values=c("solid", "dotted", "dotted"),
-                          labels = c("Observed, with SD", "Predicted (pairs)", "Predicted (multispecies)")) +
+                          labels = c("Observed, with SD", "Predicted (species pairs)", "Predicted (multispecies)")) +
     scale_color_manual(values = colors_obs_pred,
-                       labels = c("Observed, with SD", "Predicted (pairs)", "Predicted (multispecies)")) +
+                       labels = c("Observed, with SD", "Predicted (species pairs)", "Predicted (multispecies)")) +
     scale_x_continuous(name = "Land use intensity (LUI)",
                        breaks = as.vector(unique(total$LUI))) +
     scale_y_continuous(name = "Number of species",
