@@ -116,6 +116,8 @@ p + theme(
   plot.title = element_text(size=14),
   axis.title.x = element_blank(),
   axis.title.y = element_text(size=14, face="bold")
-  
 )
+
+ggsave(filename = "figures/paper_figures/SupFig1_inter_strength.png", device = "png",
+       width = 15, height = 10, limitsize = FALSE)
 
