@@ -53,9 +53,31 @@ facilitation <- data.frame("LUI" = as.factor(rep(lui, 2)),
 
 
 library(ggplot2)
-ggplot(data = facilitation, aes(x = LUI, y = prevalence, fill = interaction)) +
+p_facilitation <- ggplot(data = facilitation, aes(x = LUI, y = prevalence, fill = interaction)) +
   geom_bar(stat = "identity", position = position_dodge()) +
   ylab("Prevalence (%) of positive interactions") +
-  labs(fill = "Combination")
+  labs(x="LUI", fill = "Combination") +
+  theme(
+    axis.text=element_text(size=14),
+    plot.title = element_text(size=14),
+    axis.title.x = element_text(size=14, face="bold"),
+    axis.title.y = element_text(size=14, face="bold")
+  )
 
 ggsave("figures/facilitation.png", device = "png", dpi = 320)
+
+
+#arrange both intra- inter plots and facilitation
+
+ggarrange(p_interactions, p_facilitation,
+          ncol = 1, nrow = 2,
+          heights = c(2, 2),
+          labels = "AUTO",
+          #font.label = list(size = size_text + 5),
+          hjust = c(-2.5, -2.15),
+          vjust = c(1.5, 0.5))
+ggsave(filename = "figures/paper_figures/SupFig1_interactions and facilitation.png", device = "png",
+       width = 15, height = 13, limitsize = FALSE)
+
+
+

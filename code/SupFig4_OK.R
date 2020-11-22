@@ -113,7 +113,7 @@ for (i in 1:length(c)){
   for (j in 1:length(r)){
     rdata <- subset(cdata, richness == r[j])
     for (k in 1:length(l)){
-      ldata <- subset(rdata, LUI == l[k])
+      ldata <- subset(cdata, LUI == l[k])
       feasible <- rbind(feasible, data.frame(
         "species" = c[i],
         "richness" = r[j],
@@ -145,7 +145,8 @@ spp <- c("Poa_tri", "Poa_pra", "Alo_pra", "Dac_glo", "Tri_rep", "Tar_sp",
 feasible$species <- as.character(feasible$species)
 feasible$species <- factor(feasible$species,
                            levels = spp)
-
+#we only want two species not three for predictions. 
+feasible <- subset(feasible, richness == 2)
 #write feasible
 write.csv(feasible, "results/feasible_SupFig4_sin11.csv", row.names = FALSE)
 
@@ -158,7 +159,7 @@ feasible <- read.csv("results/feasible_SupFig4_sin11.csv")
 predictions <- ggplot(data = feasible, aes(x = LUI, y = species)) +
   geom_tile(aes(fill = as.factor(feasible))) +
   facet_grid(. ~ richness, labeller = label_both) +
-  scale_fill_discrete(name = "Feasible?", labels = c("No", "Yes")) +
+  scale_fill_discrete(name = "Feasible", labels = c("No", "Yes")) +
   xlab("Land use intensity (LUI)") +
   ylab("Plant species")
 
@@ -614,5 +615,5 @@ ggarrange(a, predictions,
           hjust = c(-12.5, -2.15),
           vjust = c(1, 1.5))
 ggsave(filename = "figures/paper_figures/SupFig4.png", device = "png",
-       width = 15, height = 10, limitsize = FALSE)
+       width = 15, height = 13, limitsize = FALSE)
 

@@ -34,13 +34,13 @@ plot(SND ~ LUI, data = coex2, pch = 16, main = "Niche diff. vs LUI 2 sp")
 for (j in 1:ncol(rqn2$coefficients)) {
   abline(coef(rqn2)[, j], col = colors[j])
 }
-plot(SFD ~ LUI, data = coex2, pch = 16, main = "Fitness diff. vs LUI 2 sp")
-for (j in 1:ncol(rqf2$coefficients)) {
-  abline(coef(rqf2)[, j], col = colors[j])
-}
 plot(SND ~ LUI, data = coex3, pch = 16, main = "Niche diff. vs LUI 3 sp")
 for (j in 1:ncol(rqn3$coefficients)) {
   abline(coef(rqn3)[, j], col = colors[j])
+}
+plot(SFD ~ LUI, data = coex2, pch = 16, main = "Fitness diff. vs LUI 2 sp")
+for (j in 1:ncol(rqf2$coefficients)) {
+  abline(coef(rqf2)[, j], col = colors[j])
 }
 plot(SFD ~ LUI, data = coex3, pch = 16, main = "Fitness diff. vs LUI 3 sp")
 for (j in 1:ncol(rqf3$coefficients)) {
@@ -74,20 +74,6 @@ segments(seq(0.1, 0.9, by = 0.1),mean-sd, seq(0.1, 0.9, by = 0.1),mean+sd)
 abline(h=0.00639, col="red", lty=2)
 text("n.s", x=0.15, y=0.015)
 
-# 2 sp fitness
-mean <- as.vector(matrix(nrow=1, ncol=length(rqf2.summ), NA))
-sd <- as.vector(matrix(nrow=1, ncol=length(rqf2.summ), NA))
-for(i in 1:length(rqf2.summ)) {
-  mean[i] <- rqf2.summ[[i]]$coefficients[2,1]
-  sd[i] <- rqf2.summ[[i]]$coefficients[2,2]
-}
-plot(seq(0.1, 0.9, by = 0.1), mean, pch = 16, cex=1.5, ylab="Estimate", xlab ="Quantile",
-     ylim= c(min(mean)-0.9, max(mean)+0.7), cex.lab=1.3, main="Structural fitness differences \n2 species combination")
-axis(side=1, at=seq(0.1, 0.9, by = 0.1))
-segments(seq(0.1, 0.9, by = 0.1),mean-sd, seq(0.1, 0.9, by = 0.1),mean+sd)
-abline(h=0.85, col="red", lty=2)
-text("n.s", x=0.18, y=0.5)
-
 # 3 sp niche
 mean <- as.vector(matrix(nrow=1, ncol=length(rqn3.summ), NA))
 sd <- as.vector(matrix(nrow=1, ncol=length(rqn3.summ), NA))
@@ -102,6 +88,20 @@ segments(seq(0.1, 0.9, by = 0.1),mean-sd, seq(0.1, 0.9, by = 0.1),mean+sd)
 abline(h=0.03, col="red", lty=2)
 text("n.s", x=0.15, y=0.05)
 
+# 2 sp fitness
+mean <- as.vector(matrix(nrow=1, ncol=length(rqf2.summ), NA))
+sd <- as.vector(matrix(nrow=1, ncol=length(rqf2.summ), NA))
+for(i in 1:length(rqf2.summ)) {
+  mean[i] <- rqf2.summ[[i]]$coefficients[2,1]
+  sd[i] <- rqf2.summ[[i]]$coefficients[2,2]
+}
+plot(seq(0.1, 0.9, by = 0.1), mean, pch = 16, cex=1.5, ylab="Estimate", xlab ="Quantile",
+     ylim= c(min(mean)-0.9, max(mean)+0.7), cex.lab=1.3, main="Structural fitness differences \n2 species combination")
+axis(side=1, at=seq(0.1, 0.9, by = 0.1))
+segments(seq(0.1, 0.9, by = 0.1),mean-sd, seq(0.1, 0.9, by = 0.1),mean+sd)
+abline(h=0.85, col="red", lty=2)
+text("n.s", x=0.18, y=0.5)
+
 # 3 sp fitness
 mean <- as.vector(matrix(nrow=1, ncol=length(rqf3.summ), NA))
 sd <- as.vector(matrix(nrow=1, ncol=length(rqf3.summ), NA))
@@ -115,6 +115,9 @@ axis(side=1, at=seq(0.1, 0.9, by = 0.1))
 segments(seq(0.1, 0.9, by = 0.1),mean-sd, seq(0.1, 0.9, by = 0.1),mean+sd)
 abline(h=0.20, col="red", lty=2)
 text("n.s", x=0.15, y=0)
+
+ggsave(filename = "figures/paper_figures/sup mat quantile regresion.png", device = "png",
+       width = 15, height = 10, limitsize = FALSE)
 
 # random niche
 
