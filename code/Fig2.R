@@ -37,7 +37,7 @@ diff <- ggplot(data = coex, aes(x = LUI, y = differential, colour = richness)) +
   coord_cartesian(ylim = c(-0.05, 0.2), expand = TRUE) +
   scale_y_continuous(breaks = seq(-0.05, 0.2, 0.05)) +
   scale_x_continuous(breaks = seq(0.5, 3, 0.25)) +
-  scale_colour_manual(name = "Species combinations' richness:",
+  scale_colour_manual(name = "Number of species in combination",
                       values = color.blind) +
   xlab(" ") +
   ylab("Community-pair differential") +
@@ -51,7 +51,7 @@ over <- ggplot(data = coex, aes(x = LUI, y = overlap, colour = richness)) +
   coord_cartesian(ylim = c(0, 1), expand = TRUE) +
   scale_y_continuous(breaks = seq(0, 1, 0.2)) +
   scale_x_continuous(breaks = seq(0.5, 3, 0.25)) +
-  scale_colour_manual(name = "Species combinations' richness:",
+  scale_colour_manual(name = "Number of species in combination",
                       values = color.blind) +
   xlab("Land use intensity (LUI)") +
   ylab("Community-pair overlap") +
