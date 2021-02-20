@@ -241,6 +241,8 @@ summary(nlrq9)
 
 # the usual calculation of the corresponding line
 predict_range <- data.frame(LUI = seq(0.5, 3.0, length = 100))
+
+png(file="figures/quantile.reg.niche.2.png",width=700, height=500)
 par(bg = 'darkgrey')
 plot(coex2$LUI, coex2$SND, pch=3, main= "Non-linear quantile regression", ylab="SND", xlab ="LUI", cex.lab=1.3, cex.main=1.3)
 
@@ -262,6 +264,9 @@ l8 <- within(predict_range,SND <- predict(nlrq8,  newdata = predict_range))
 lines(SND ~ LUI, data = l8, col = "#cc0000")
 l9 <- within(predict_range,SND <- predict(nlrq9,  newdata = predict_range))
 lines(SND ~ LUI, data = l9, col = "#b30000")
+
+dev.off()
+
 
 
 eq <- SFD ~ a * LUI^2 + b * LUI  + c
@@ -287,6 +292,8 @@ summary(nlrq9)
 
 # the usual calculation of the corresponding line
 predict_range <- data.frame(LUI = seq(0.5, 3.0, length = 100))
+
+png(file="figures/quantile.reg.fitness.2.png",width=700, height=500)
 par(bg = 'darkgrey')
 plot(coex2$LUI, coex2$SFD, pch=3, main= "Non-linear quantile regression", ylab="SFD", xlab ="LUI", ylim=c(0,85), cex.lab=1.3, cex.main=1.3)
 
@@ -308,6 +315,8 @@ l8 <- within(predict_range,SFD <- predict(nlrq8,  newdata = predict_range))
 lines(SFD ~ LUI, data = l8, col = "#cc0000")
 l9 <- within(predict_range,SFD <- predict(nlrq9,  newdata = predict_range))
 lines(SFD ~ LUI, data = l9, col = "#b30000")
+
+dev.off()
 
 #coex3
 eq <- SND ~ a * LUI^2 + b * LUI  + c
