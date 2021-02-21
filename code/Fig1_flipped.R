@@ -9,6 +9,9 @@ coex3$feasibility <- as.factor(coex3$feasibility)
 library(ggplot2)
 library(ggpubr)
 library(ggridges)
+library(png)
+library(cowplot)
+library(magick)
 
 #common features for all figures
 size_text <- 18 #text size
@@ -41,13 +44,19 @@ SND2 <- ggplot(data = coex2, aes(x = SND, y = LUI)) +
                                   round(max(c(coex2$SND, coex3$SND)), 1),
                                   by = 0.5),
                      limits = c(min(c(coex2$SND, coex3$SND)),
-                                max(c(coex2$SND, coex3$SND)))) +
+                                max(c(3, 3)))) +
   xlab("Structural niche differences") +
   ylab(" ") +
   ggtitle("2 species combinations") +
   coord_flip() +
   theme(text = element_text(size = size_text),
         plot.title = element_text(hjust = 0.5)); SND2
+
+#load quantile regression image
+img <- load.image("figures/quantile.reg.niche.2.png")
+SND2 <- ggdraw(SND2) +
+  draw_image(img, x=.18, y=.24, scale=0.43)
+SND2
 
 
 #structural niche differences 3 species
@@ -76,13 +85,19 @@ SND3 <- ggplot(data = coex3, aes(x = SND, y = LUI)) +
                                   round(max(c(coex2$SND, coex3$SND)), 1),
                                   by = 0.5),
                      limits = c(min(c(coex2$SND, coex3$SND)),
-                                max(c(coex2$SND, coex3$SND)))) +
+                                max(c(3, 3)))) +
   xlab(" ") +
   ylab(" ") +
   ggtitle("3 species combinations") +
   coord_flip() +
   theme(text = element_text(size = size_text),
         plot.title = element_text(hjust = 0.5)); SND3
+
+#load quantile regression image
+img <- load.image("figures/quantile.reg.niche.3.png")
+SND3 <- ggdraw(SND3) +
+  draw_image(img, x=.18, y=.24, scale=0.35)
+SND3
 
 
 #structural fitness differences 2 species
@@ -111,12 +126,18 @@ SFD2 <- ggplot(data = coex2, aes(x = SFD, y = LUI)) +
                                   round((max(c(coex2$SFD, coex3$SFD))/10))*10,
                                   by = 20),
                      limits = c(min(c(coex2$SFD, coex3$SFD)),
-                                max(c(coex2$SFD, coex3$SFD)))) +
+                                max(c(120,120)))) +
   ylab("Land use intensity (LUI)") +
   xlab("Structural fitness differences") +
   ggtitle(" ") +
   coord_flip() +
   theme(text = element_text(size = size_text)); SFD2
+
+#load quantile regression image
+img <- load.image("figures/quantile.reg.fitness.2.png")
+SFD2 <- ggdraw(SFD2) +
+  draw_image(img, x=.18, y=.24, scale=0.35)
+SFD2
 
 
 #structural fitness differences 3 species
@@ -145,12 +166,18 @@ SFD3 <- ggplot(data = coex3, aes(x = SFD, y = LUI)) +
                                   round((max(c(coex2$SFD, coex3$SFD))/10))*10,
                                   by = 20),
                      limits = c(min(c(coex2$SFD, coex3$SFD)),
-                                max(c(coex2$SFD, coex3$SFD)))) +
+                                max(c(120,120)))) +
   xlab(" ") +
   ylab("Land use intensity (LUI)") +
   ggtitle(" ") +
   coord_flip() +
   theme(text = element_text(size = size_text)); SFD3
+
+#load quantile regression image
+img <- load.image("figures/quantile.reg.fitness.3.png")
+SFD3 <- ggdraw(SFD3) +
+  draw_image(img, x=.18, y=.24, scale=0.35)
+SFD3
 
 #put them together
 ggarrange(SND2, SND3, SFD2, SFD3,
