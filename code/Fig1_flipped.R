@@ -12,6 +12,7 @@ library(ggridges)
 library(png)
 library(cowplot)
 library(magick)
+library(imager)
 
 #common features for all figures
 size_text <- 18 #text size
@@ -31,13 +32,9 @@ SND2 <- ggplot(data = coex2, aes(x = SND, y = LUI)) +
   scale_point_color_hue(name = "Feasibility",
                         breaks = c("0", "1"),
                         labels = c("No", "Yes")) +
-  stat_density_ridges(aes(group = LUI, point_color = feasibility),
-                      scale = 0.9,
-                      alpha = 0,
-                      quantile_lines = TRUE,
-                      jittered_points = FALSE,
-                      position = "points_sina",
-                      show.legend = FALSE) +
+  ###
+  #quantiles
+  ###
   scale_y_continuous(breaks = seq(0.5, 3, 0.25)) +
   scale_x_continuous(expand = expansion(0.1),
                      breaks = seq(0,
@@ -51,6 +48,7 @@ SND2 <- ggplot(data = coex2, aes(x = SND, y = LUI)) +
   coord_flip() +
   theme(text = element_text(size = size_text),
         plot.title = element_text(hjust = 0.5)); SND2
+
 
 #load quantile regression image
 img <- load.image("figures/quantile.reg.niche.2.png")
@@ -72,13 +70,9 @@ SND3 <- ggplot(data = coex3, aes(x = SND, y = LUI)) +
   scale_point_color_hue(name = "Feasibility",
                         breaks = c("0", "1"),
                         labels = c("No", "Yes")) +
-  stat_density_ridges(aes(group = LUI, point_color = feasibility),
-                      scale = 0.9,
-                      alpha = 0,
-                      quantile_lines = TRUE,
-                      jittered_points = FALSE,
-                      position = "points_sina",
-                      show.legend = FALSE) +
+  ###
+  #quantiles
+  ###
   scale_y_continuous(breaks = seq(0.5, 3, 0.25)) +
   scale_x_continuous(expand = expansion(0.1),
                      breaks = seq(0,
@@ -113,13 +107,9 @@ SFD2 <- ggplot(data = coex2, aes(x = SFD, y = LUI)) +
   scale_point_color_hue(name = "Feasibility",
                         breaks = c("0", "1"),
                         labels = c("No", "Yes")) +
-  stat_density_ridges(aes(group = LUI, point_color = feasibility),
-                      scale = 0.9,
-                      alpha = 0,
-                      quantile_lines = TRUE,
-                      jittered_points = FALSE,
-                      position = "points_sina",
-                      show.legend = FALSE) +
+  ###
+  #quantiles
+  ###
   scale_y_continuous(breaks = seq(0.5, 3, 0.25)) +
   scale_x_continuous(expand = expansion(0.1),
                      breaks = seq(0,
@@ -153,13 +143,9 @@ SFD3 <- ggplot(data = coex3, aes(x = SFD, y = LUI)) +
   scale_point_color_hue(name = "Feasibility",
                         breaks = c("0", "1"),
                         labels = c("No", "Yes")) +
-  stat_density_ridges(aes(group = LUI, point_color = feasibility),
-                      scale = 0.9,
-                      alpha = 0,
-                      quantile_lines = TRUE,
-                      jittered_points = FALSE,
-                      position = "points_sina",
-                      show.legend = FALSE) +
+  ###
+  #quantiles
+  ###
   scale_y_continuous(breaks = seq(0.5, 3, 0.25)) +
   scale_x_continuous(expand = expansion(0.1),
                      breaks = seq(0,
