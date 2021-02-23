@@ -71,15 +71,15 @@ SND2 <- ggplot(data = coex2, aes(x = SND, y = LUI)) +
                         labels = c("No", "Yes")) +
   ###
   #quantiles
-  geom_line(data=l1,linetype = "longdash") +
-  geom_line(data=l2, linetype = "longdash") +
-  geom_line(data=l3, linetype = "longdash") +
-  geom_line(data=l4, linetype = "longdash") +
-  geom_line(data=l5) + # this is because it is the median.
-  geom_line(data=l6, linetype = "longdash") +
-  geom_line(data=l7, linetype = "longdash") +
-  geom_line(data=l8, linetype = "longdash") +
-  geom_line(data=l9, linetype = "longdash") +
+  geom_line(data=l1,linetype = "longdash", orientation = "y", size=0.3) +
+  geom_line(data=l2, linetype = "longdash", orientation = "y", size=0.3) +
+  geom_line(data=l3, linetype = "longdash", orientation = "y", size=0.3) +
+  geom_line(data=l4, linetype = "longdash", orientation = "y", size=0.3) +
+  geom_line(data=l5, orientation = "y", size=0.3) + # this is because it is the median.
+  geom_line(data=l6, linetype = "longdash", orientation = "y", size=0.3) +
+  geom_line(data=l7, linetype = "longdash", orientation = "y", size=0.3) +
+  geom_line(data=l8, linetype = "longdash", orientation = "y", size=0.3) +
+  geom_line(data=l9, linetype = "longdash", orientation = "y", size=0.3) +
   ###
   
   scale_y_continuous(breaks = seq(0.5, 3, 0.25)) +
@@ -87,8 +87,8 @@ SND2 <- ggplot(data = coex2, aes(x = SND, y = LUI)) +
                      breaks = seq(0,
                                   round(max(c(coex2$SND, coex3$SND)), 1),
                                   by = 0.5),
-                     limits = c(min(c(coex2$SND, coex3$SND)),
-                                max(c(2, 2)))) +
+                     limits = c(min(c(0, 0)),
+                                max(c(1.5, 1.5)))) +
   xlab("Structural niche differences") +
   ylab(" ") +
   ggtitle("2 species combinations") +
@@ -97,7 +97,47 @@ SND2 <- ggplot(data = coex2, aes(x = SND, y = LUI)) +
         plot.title = element_text(hjust = 0.5)); SND2
 
 
+
+
+
 #structural niche differences 3 species----
+#quantile
+
+#coex3
+eq <- SND ~ a * LUI^2 + b * LUI  + c
+
+nlrq1 <- nlrq(eq, data=coex3, start = list(a = 3, b = 5, c = 5), tau = 0.1)
+summary(nlrq1)
+nlrq2 <- nlrq(eq, data=coex3, start = list(a = 2, b = 2, c = 5), tau = 0.2)
+summary(nlrq2)
+nlrq3 <- nlrq(eq, data=coex3, start = list(a = 2, b = 2, c = 5), tau = 0.3)
+summary(nlrq3)
+nlrq4 <- nlrq(eq, data=coex3, start = list(a = 3, b = 5, c = 5), tau = 0.4)
+summary(nlrq4)
+nlrq5 <- nlrq(eq, data=coex3, start = list(a = 2, b = 2, c = 5), tau = 0.5)
+summary(nlrq5)
+nlrq6 <- nlrq(eq, data=coex3, start = list(a = 2, b = 2, c = 5), tau = 0.6)
+summary(nlrq6)
+nlrq7 <- nlrq(eq, data=coex3, start = list(a = 3, b = 5, c = 5), tau = 0.7)
+summary(nlrq7)
+nlrq8 <- nlrq(eq, data=coex3, start = list(a = 2, b = 2, c = 5), tau = 0.8)
+summary(nlrq8)
+nlrq9 <- nlrq(eq, data=coex3, start = list(a = 2, b = 2, c = 5), tau = 0.9)
+summary(nlrq9)
+
+# the usual calculation of the corresponding line
+
+predict_range <- data.frame(LUI = seq(0.5, 3.0, length = 100))
+l1 <- within(predict_range,  SND <- predict(nlrq1, newdata = predict_range))
+l2 <- within(predict_range,SND <- predict(nlrq2,  newdata = predict_range))
+l3 <- within(predict_range,  SND <- predict(nlrq3, newdata = predict_range))
+l4 <- within(predict_range,SND <- predict(nlrq4,  newdata = predict_range))
+l5 <- within(predict_range,  SND <- predict(nlrq5, newdata = predict_range))
+l6 <- within(predict_range,SND <- predict(nlrq6,  newdata = predict_range))
+l7 <- within(predict_range,  SND <- predict(nlrq7, newdata = predict_range))
+l8 <- within(predict_range,SND <- predict(nlrq8,  newdata = predict_range))
+l9 <- within(predict_range,SND <- predict(nlrq9,  newdata = predict_range))
+
 SND3 <- ggplot(data = coex3, aes(x = SND, y = LUI)) +
   stat_density_ridges(aes(group = LUI, point_color = feasibility),
                       scale = 0.9,
@@ -112,6 +152,15 @@ SND3 <- ggplot(data = coex3, aes(x = SND, y = LUI)) +
                         labels = c("No", "Yes")) +
   ###
   #quantiles
+  geom_line(data=l1,linetype = "longdash", orientation = "y", size=0.3) +
+  geom_line(data=l2, linetype = "longdash", orientation = "y", size=0.3) +
+  geom_line(data=l3, linetype = "longdash", orientation = "y", size=0.3) +
+  geom_line(data=l4, linetype = "longdash", orientation = "y", size=0.3) +
+  geom_line(data=l5, orientation = "y", size=0.3) + # this is because it is the median.
+  geom_line(data=l6, linetype = "longdash", orientation = "y", size=0.3) +
+  geom_line(data=l7, linetype = "longdash", orientation = "y", size=0.3) +
+  geom_line(data=l8, linetype = "longdash", orientation = "y", size=0.3) +
+  geom_line(data=l9, linetype = "longdash", orientation = "y", size=0.3) +
   ###
   scale_y_continuous(breaks = seq(0.5, 3, 0.25)) +
   scale_x_continuous(expand = expansion(0.1),
@@ -119,7 +168,7 @@ SND3 <- ggplot(data = coex3, aes(x = SND, y = LUI)) +
                                   round(max(c(coex2$SND, coex3$SND)), 1),
                                   by = 0.5),
                      limits = c(min(c(coex2$SND, coex3$SND)),
-                                max(c(3, 3)))) +
+                                max(c(2.5, 2.5)))) +
   xlab(" ") +
   ylab(" ") +
   ggtitle("3 species combinations") +
