@@ -10,16 +10,53 @@ library(ggplot2)
 library(ggpubr)
 library(ggridges)
 library(png)
-library(cowplot)
-library(magick)
-library(imager)
+library(quantreg)
+
+#quantile
+
+#coex2
+eq <- SND ~ a * LUI^2 + b * LUI  + c
+
+nlrq1 <- nlrq(eq, data=coex2, start = list(a = 3, b = 5, c = 5), tau = 0.1)
+summary(nlrq1)
+nlrq2 <- nlrq(eq, data=coex2, start = list(a = 2, b = 2, c = 5), tau = 0.2)
+summary(nlrq2)
+nlrq3 <- nlrq(eq, data=coex2, start = list(a = 2, b = 2, c = 5), tau = 0.3)
+summary(nlrq3)
+nlrq4 <- nlrq(eq, data=coex2, start = list(a = 3, b = 5, c = 5), tau = 0.4)
+summary(nlrq4)
+nlrq5 <- nlrq(eq, data=coex2, start = list(a = 2, b = 2, c = 5), tau = 0.5)
+summary(nlrq5)
+nlrq6 <- nlrq(eq, data=coex2, start = list(a = 2, b = 2, c = 5), tau = 0.6)
+summary(nlrq6)
+nlrq7 <- nlrq(eq, data=coex2, start = list(a = 3, b = 5, c = 5), tau = 0.7)
+summary(nlrq7)
+nlrq8 <- nlrq(eq, data=coex2, start = list(a = 2, b = 2, c = 5), tau = 0.8)
+summary(nlrq8)
+nlrq9 <- nlrq(eq, data=coex2, start = list(a = 2, b = 2, c = 5), tau = 0.9)
+summary(nlrq9)
+
+# the usual calculation of the corresponding line
+
+predict_range <- data.frame(LUI = seq(0.5, 3.0, length = 100))
+l1 <- within(predict_range,  SND <- predict(nlrq1, newdata = predict_range))
+l2 <- within(predict_range,SND <- predict(nlrq2,  newdata = predict_range))
+l3 <- within(predict_range,  SND <- predict(nlrq3, newdata = predict_range))
+l4 <- within(predict_range,SND <- predict(nlrq4,  newdata = predict_range))
+l5 <- within(predict_range,  SND <- predict(nlrq5, newdata = predict_range))
+l6 <- within(predict_range,SND <- predict(nlrq6,  newdata = predict_range))
+l7 <- within(predict_range,  SND <- predict(nlrq7, newdata = predict_range))
+l8 <- within(predict_range,SND <- predict(nlrq8,  newdata = predict_range))
+l9 <- within(predict_range,SND <- predict(nlrq9,  newdata = predict_range))
+
 
 #common features for all figures
 size_text <- 18 #text size
 size_points <- 1
 size_figure <- c(12, 16) #width and height for saving the final figure
 
-#structural niche differences 2 species
+
+#structural niche differences 2 species----
 SND2 <- ggplot(data = coex2, aes(x = SND, y = LUI)) +
   stat_density_ridges(aes(group = LUI, point_color = feasibility),
                       scale = 0.9,
@@ -34,14 +71,24 @@ SND2 <- ggplot(data = coex2, aes(x = SND, y = LUI)) +
                         labels = c("No", "Yes")) +
   ###
   #quantiles
+  geom_line(data=l1,linetype = "longdash") +
+  geom_line(data=l2, linetype = "longdash") +
+  geom_line(data=l3, linetype = "longdash") +
+  geom_line(data=l4, linetype = "longdash") +
+  geom_line(data=l5) + # this is because it is the median.
+  geom_line(data=l6, linetype = "longdash") +
+  geom_line(data=l7, linetype = "longdash") +
+  geom_line(data=l8, linetype = "longdash") +
+  geom_line(data=l9, linetype = "longdash") +
   ###
+  
   scale_y_continuous(breaks = seq(0.5, 3, 0.25)) +
   scale_x_continuous(expand = expansion(0.1),
                      breaks = seq(0,
                                   round(max(c(coex2$SND, coex3$SND)), 1),
                                   by = 0.5),
                      limits = c(min(c(coex2$SND, coex3$SND)),
-                                max(c(3, 3)))) +
+                                max(c(2, 2)))) +
   xlab("Structural niche differences") +
   ylab(" ") +
   ggtitle("2 species combinations") +
@@ -50,14 +97,7 @@ SND2 <- ggplot(data = coex2, aes(x = SND, y = LUI)) +
         plot.title = element_text(hjust = 0.5)); SND2
 
 
-#load quantile regression image
-img <- load.image("figures/quantile.reg.niche.2.png")
-SND2 <- ggdraw(SND2) +
-  draw_image(img, x=.18, y=.24, scale=0.43)
-SND2
-
-
-#structural niche differences 3 species
+#structural niche differences 3 species----
 SND3 <- ggplot(data = coex3, aes(x = SND, y = LUI)) +
   stat_density_ridges(aes(group = LUI, point_color = feasibility),
                       scale = 0.9,
