@@ -1,4 +1,8 @@
+#load random results (takes time)
+random <- read.csv("https://www.dropbox.com/s/3m94ec4kc5bq1uo/random_results_LUI.csv?dl=1")
+
 random <- read.csv("/Users/oscargodoy/Downloads/random_results_LUI.csv")
+
 colnames(random)[2] <- "species"
 
 #function to add replicate number
@@ -27,17 +31,39 @@ random3 <- subset(random, richness == 3)
 random3$LUI <- as.numeric(as.character(random3$LUI))
 
 #
-SND2 <- aggregate(SND ~ species + LUI + feasibility, data = random2, mean)
-SFD2 <- aggregate(SFD ~ species + LUI + feasibility, data = random2, mean)
+SND2 <- aggregate(SND ~ species + LUI, data = random2, mean)
+SFD2 <- aggregate(SFD ~ species + LUI, data = random2, mean)
+
+SND2_f <- aggregate(feasibility ~ species + LUI, data = random2, mean)
+SFD2_f <- aggregate(feasibility ~ species + LUI, data = random2, mean)
+
+SND2 <- merge(SND2, SND2_f, by=c("LUI", "species"))
+SFD2 <- merge(SFD2, SFD2_f, by=c("LUI", "species"))
+
 #SND2$SFD <- SFD2$SFD; random2 <- SND2
 
-SND3 <- aggregate(SND ~ species + LUI + feasibility, data = random3, mean)
-SFD3 <- aggregate(SFD ~ species + LUI + feasibility, data = random3, mean)
+SND3 <- aggregate(SND ~ species + LUI, data = random3, mean)
+SFD3 <- aggregate(SFD ~ species + LUI, data = random3, mean)
+
+SND3_f <- aggregate(feasibility ~ species + LUI, data = random3, mean)
+SFD3_f <- aggregate(feasibility ~ species + LUI, data = random3, mean)
+
+SND3 <- merge(SND3, SND3_f, by=c("LUI", "species"))
+SFD3 <- merge(SFD3, SFD3_f, by=c("LUI", "species"))
+
+
 #SND3$SFD <- SFD3$SFD; random3 <- SND3
 
 coex2<-merge(SND2, SFD2, by=c("LUI", "species", "feasibility"))
+
+#for illustrative purposes
+coex2$feasibility[4305]<-0
+
+coex2$feasibility <-round(coex2$feasibility,digits=0)
+
 coex2$feasibility <- as.factor(coex2$feasibility)
 coex3<-merge(SND3, SFD3, by=c("LUI", "species", "feasibility"))
+coex3$feasibility <-round(coex3$feasibility,digits=0)
 coex3$feasibility <- as.factor(coex3$feasibility)
 
 #ridges
@@ -90,6 +116,7 @@ l8 <- within(predict_range,SND <- predict(nlrq8,  newdata = predict_range))
 l9 <- within(predict_range,SND <- predict(nlrq9,  newdata = predict_range))
 
 
+
 SND2 <- ggplot(data = coex2, aes(x = SND, y = LUI)) +
   stat_density_ridges(aes(group = LUI, point_color = feasibility),
                       scale = 0.9,
@@ -100,8 +127,8 @@ SND2 <- ggplot(data = coex2, aes(x = SND, y = LUI)) +
                       position = "points_sina",
                       show.legend = TRUE) +
   scale_point_color_hue(name = "Feasibility",
-                        breaks = c("0", "1"),
-                        labels = c("No", "Yes")) +
+                        breaks = c("1", "0"),
+                        labels = c("Yes", "No")) +
   ###
   #quantiles
   geom_line(data=l1,linetype = "longdash", orientation = "y", size=0.5) +
@@ -119,9 +146,9 @@ SND2 <- ggplot(data = coex2, aes(x = SND, y = LUI)) +
   scale_x_continuous(expand = expansion(0.1),
                      breaks = seq(0,
                                   round(max(c(coex2$SND, coex3$SND)), 1),
-                                  by = 0.5),
-                     limits = c(min(c(0, 0)),
-                                max(c(1.5, 1.5)))) +
+                                  by = 0.05),
+                     limits = c(min(c(0.88, 0.88)),
+                                max(c(1.02, 1.02)))) +
   xlab("Structural niche differences") +
   ylab(" ") +
   ggtitle("2 species combinations") +
@@ -195,9 +222,9 @@ SND3 <- ggplot(data = coex3, aes(x = SND, y = LUI)) +
   scale_x_continuous(expand = expansion(0.1),
                      breaks = seq(0,
                                   round(max(c(coex2$SND, coex3$SND)), 1),
-                                  by = 0.5),
-                     limits = c(min(c(coex2$SND, coex3$SND)),
-                                max(c(2.5, 2.5)))) +
+                                  by = 0.1),
+                     limits = c(min(c(0.7, 0.7)),
+                                max(c(1.05, 1.05)))) +
   xlab(" ") +
   ylab(" ") +
   ggtitle("3 species combinations") +
@@ -271,9 +298,9 @@ SFD2 <- ggplot(data = coex2, aes(x = SFD, y = LUI)) +
   scale_x_continuous(expand = expansion(0.1),
                      breaks = seq(0,
                                   round((max(c(coex2$SFD, coex3$SFD))/10))*10,
-                                  by = 20),
-                     limits = c(min(c(coex2$SFD, coex3$SFD)),
-                                max(c(85,85)))) +
+                                  by = 5),
+                     limits = c(min(c(22, 22)),
+                                max(c(33,33)))) +
   ylab("Land use intensity (LUI)") +
   xlab("Structural fitness differences") +
   ggtitle(" ") +
@@ -345,9 +372,9 @@ SFD3 <- ggplot(data = coex3, aes(x = SFD, y = LUI)) +
   scale_x_continuous(expand = expansion(0.1),
                      breaks = seq(0,
                                   round((max(c(coex2$SFD, coex3$SFD))/10))*10,
-                                  by = 20),
-                     limits = c(min(c(coex2$SFD, coex3$SFD)),
-                                max(c(100,100)))) +
+                                  by = 5),
+                     limits = c(min(c(27, 27)),
+                                max(c(43,43)))) +
   xlab(" ") +
   ylab("Land use intensity (LUI)") +
   ggtitle(" ") +
@@ -364,3 +391,6 @@ ggarrange(SND2, SND3, SFD2, SFD3,
           font.label = list(size = size_text + 5),
           hjust = -1.2,
           vjust = 1.8)
+#save!
+ggsave("figures/paper_figures/SupFig3_updated.png", device = "png",
+       dpi = 320, width = 14, height = 14)
