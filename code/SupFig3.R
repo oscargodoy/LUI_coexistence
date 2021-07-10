@@ -1,5 +1,7 @@
 #load random results (takes time)
 random <- read.csv("https://www.dropbox.com/s/3m94ec4kc5bq1uo/random_results_LUI.csv?dl=1")
+
+random <- read.csv("/Users/oscargodoy/Downloads/random_results_LUI.csv")
 colnames(random)[2] <- "species"
 
 #function to add replicate number

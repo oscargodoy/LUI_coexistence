@@ -105,19 +105,25 @@ data$LUI <- as.factor(data$LUI)
 data$intra_inter <- as.factor(data$intra_inter)
 data$int_strength <- as.numeric(data$int_strength)
 
+
 #Now plot the violins plots 
 
 require(ggplot2)
 
-p<- ggplot(data, aes(x=intra_inter, y=int_strength, fill=LUI)) + coord_cartesian(ylim = c(-1.3, 0.09))+
-geom_boxplot(outlier.size=-1, notch=TRUE) + facet_wrap(~intra_inter, scales="free") + labs(x = " ", y="Interaction strength")
+
+p<- ggplot(data, aes(x=LUI, y=int_strength, fill=intra_inter)) + coord_cartesian(ylim = c(-1.3, 0.09))+
+geom_boxplot(position=position_dodge(1), outlier.size=-1, notch=TRUE) + facet_wrap(~intra_inter, scales="free") + labs(x = "LUI", y="Interaction strength")
 p_interactions <- p + theme(
   axis.text=element_text(size=14),
   plot.title = element_text(size=14),
-  axis.title.x = element_blank(),
+  axis.title.x = element_text(size=14),
   axis.title.y = element_text(size=14, face="bold")
 )
 
+p_interactions
+
 ggsave(filename = "figures/paper_figures/SupFig1_inter_strength.png", device = "png",
        width = 15, height = 10, limitsize = FALSE)
+
+
 

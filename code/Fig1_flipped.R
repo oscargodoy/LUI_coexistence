@@ -70,15 +70,15 @@ SND2 <- ggplot(data = coex2, aes(x = SND, y = LUI)) +
                         labels = c("No", "Yes")) +
   ###
   #quantiles
-  geom_line(data=l1,linetype = "longdash", orientation = "y", size=0.3) +
-  geom_line(data=l2, linetype = "longdash", orientation = "y", size=0.3) +
-  geom_line(data=l3, linetype = "longdash", orientation = "y", size=0.3) +
-  geom_line(data=l4, linetype = "longdash", orientation = "y", size=0.3) +
-  geom_line(data=l5, orientation = "y", size=0.3) + # this is because it is the median.
-  geom_line(data=l6, linetype = "longdash", orientation = "y", size=0.3) +
-  geom_line(data=l7, linetype = "longdash", orientation = "y", size=0.3) +
-  geom_line(data=l8, linetype = "longdash", orientation = "y", size=0.3) +
-  geom_line(data=l9, linetype = "longdash", orientation = "y", size=0.3) +
+  geom_line(data=l1,linetype = "longdash", orientation = "y", size=0.5) +
+  geom_line(data=l2, linetype = "longdash", orientation = "y", size=0.5) +
+  geom_line(data=l3, linetype = "longdash", orientation = "y", size=0.5) +
+  geom_line(data=l4, linetype = "longdash", orientation = "y", size=0.5) +
+  geom_line(data=l5, orientation = "y", size=0.5) + # this is because it is the median.
+  geom_line(data=l6, linetype = "longdash", orientation = "y", size=0.5) +
+  geom_line(data=l7, linetype = "longdash", orientation = "y", size=0.5) +
+  geom_line(data=l8, linetype = "longdash", orientation = "y", size=0.5) +
+  geom_line(data=l9, linetype = "longdash", orientation = "y", size=0.5) +
   ###
   
   scale_y_continuous(breaks = seq(0.5, 3, 0.25)) +
@@ -147,15 +147,15 @@ SND3 <- ggplot(data = coex3, aes(x = SND, y = LUI)) +
                         labels = c("No", "Yes")) +
   ###
   #quantiles
-  geom_line(data=l1,linetype = "longdash", orientation = "y", size=0.3) +
-  geom_line(data=l2, linetype = "longdash", orientation = "y", size=0.3) +
-  geom_line(data=l3, linetype = "longdash", orientation = "y", size=0.3) +
-  geom_line(data=l4, linetype = "longdash", orientation = "y", size=0.3) +
-  geom_line(data=l5, orientation = "y", size=0.3) + # this is because it is the median.
-  geom_line(data=l6, linetype = "longdash", orientation = "y", size=0.3) +
-  geom_line(data=l7, linetype = "longdash", orientation = "y", size=0.3) +
-  geom_line(data=l8, linetype = "longdash", orientation = "y", size=0.3) +
-  geom_line(data=l9, linetype = "longdash", orientation = "y", size=0.3) +
+  geom_line(data=l1,linetype = "longdash", orientation = "y", size=0.5) +
+  geom_line(data=l2, linetype = "longdash", orientation = "y", size=0.5) +
+  geom_line(data=l3, linetype = "longdash", orientation = "y", size=0.5) +
+  geom_line(data=l4, linetype = "longdash", orientation = "y", size=0.5) +
+  geom_line(data=l5, orientation = "y", size=0.5) + # this is because it is the median.
+  geom_line(data=l6, linetype = "longdash", orientation = "y", size=0.5) +
+  geom_line(data=l7, linetype = "longdash", orientation = "y", size=0.5) +
+  geom_line(data=l8, linetype = "longdash", orientation = "y", size=0.5) +
+  geom_line(data=l9, linetype = "longdash", orientation = "y", size=0.5) +
   ###
   scale_y_continuous(breaks = seq(0.5, 3, 0.25)) +
   scale_x_continuous(expand = expansion(0.1),
@@ -223,15 +223,15 @@ SFD2 <- ggplot(data = coex2, aes(x = SFD, y = LUI)) +
                         labels = c("No", "Yes")) +
   ###
   #quantiles
-  geom_line(data=l1,linetype = "longdash", orientation = "y", size=0.3) +
-  geom_line(data=l2, linetype = "longdash", orientation = "y", size=0.3) +
-  geom_line(data=l3, linetype = "longdash", orientation = "y", size=0.3) +
-  geom_line(data=l4, linetype = "longdash", orientation = "y", size=0.3) +
-  geom_line(data=l5, orientation = "y", size=0.3) + # this is because it is the median.
-  geom_line(data=l6, linetype = "longdash", orientation = "y", size=0.3) +
-  geom_line(data=l7, linetype = "longdash", orientation = "y", size=0.3) +
-  geom_line(data=l8, linetype = "longdash", orientation = "y", size=0.3) +
-  geom_line(data=l9, linetype = "longdash", orientation = "y", size=0.3) +
+  geom_line(data=l1,linetype = "longdash", orientation = "y", size=0.5) +
+  geom_line(data=l2, linetype = "longdash", orientation = "y", size=0.5) +
+  geom_line(data=l3, linetype = "longdash", orientation = "y", size=0.5) +
+  geom_line(data=l4, linetype = "longdash", orientation = "y", size=0.5) +
+  geom_line(data=l5, orientation = "y", size=0.5) + # this is because it is the median.
+  geom_line(data=l6, linetype = "longdash", orientation = "y", size=0.5) +
+  geom_line(data=l7, linetype = "longdash", orientation = "y", size=0.5) +
+  geom_line(data=l8, linetype = "longdash", orientation = "y", size=0.5) +
+  geom_line(data=l9, linetype = "longdash", orientation = "y", size=0.5) +
   ###
   scale_y_continuous(breaks = seq(0.5, 3, 0.25)) +
   scale_x_continuous(expand = expansion(0.1),
@@ -297,15 +297,15 @@ SFD3 <- ggplot(data = coex3, aes(x = SFD, y = LUI)) +
                         labels = c("No", "Yes")) +
   ###
   #quantiles
-  geom_line(data=l1,linetype = "longdash", orientation = "y", size=0.3) +
-  geom_line(data=l2, linetype = "longdash", orientation = "y", size=0.3) +
-  geom_line(data=l3, linetype = "longdash", orientation = "y", size=0.3) +
-  geom_line(data=l4, linetype = "longdash", orientation = "y", size=0.3) +
-  geom_line(data=l5, orientation = "y", size=0.3) + # this is because it is the median.
-  geom_line(data=l6, linetype = "longdash", orientation = "y", size=0.3) +
-  geom_line(data=l7, linetype = "longdash", orientation = "y", size=0.3) +
-  geom_line(data=l8, linetype = "longdash", orientation = "y", size=0.3) +
-  geom_line(data=l9, linetype = "longdash", orientation = "y", size=0.3) +
+  geom_line(data=l1,linetype = "longdash", orientation = "y", size=0.5) +
+  geom_line(data=l2, linetype = "longdash", orientation = "y", size=0.5) +
+  geom_line(data=l3, linetype = "longdash", orientation = "y", size=0.5) +
+  geom_line(data=l4, linetype = "longdash", orientation = "y", size=0.5) +
+  geom_line(data=l5, orientation = "y", size=0.5) + # this is because it is the median.
+  geom_line(data=l6, linetype = "longdash", orientation = "y", size=0.5) +
+  geom_line(data=l7, linetype = "longdash", orientation = "y", size=0.5) +
+  geom_line(data=l8, linetype = "longdash", orientation = "y", size=0.5) +
+  geom_line(data=l9, linetype = "longdash", orientation = "y", size=0.5) +
   ###
   scale_y_continuous(breaks = seq(0.5, 3, 0.25)) +
   scale_x_continuous(expand = expansion(0.1),
