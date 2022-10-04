@@ -174,7 +174,7 @@ tot_observed <- data.frame("Type" = "Observed",
 tot_observed$species_number <-  df[,2]
 
 ## load average outcomes
-predicted <- read.csv(file = "submission_PNAS/results/results-LUI_coexistence-2spp.csv", row.names = 1)
+predicted <- read.csv(file = "results/results-LUI_coexistence-2spp.csv", row.names = 1)
 lui <- seq(from = 0.5, to = 3, by = 0.25)
 predicted$species <-row.names(predicted)
 predicted <- predicted[predicted$feasibility>0.99,] #only the coexisting pairs which is equal to 1.
@@ -224,7 +224,7 @@ colors_obs_pred <- c('#999999',"#4291d7")
 )
 
 #load random results
-random <- readRDS(file = "submission_PNAS/results/results-LUI_coexistence-2spp_random.rds")
+random <- readRDS(file = "results/results-LUI_coexistence-2spp_random.rds")
 lui <- seq(from = 0.5, to = 3, by = 0.25)
 
 random_ave <-list()
@@ -317,5 +317,5 @@ colors_obs_pred <- c('#999999',"#4291d7", "#db9112")
           text = element_text(size = 14))
 )
 
-ggsave("submission_PNAS/figures/Fig4_main.png", device = "png",
+ggsave("figures/Fig4_main.png", device = "png",
        dpi = 320, width = 9, height = 6, limitsize = FALSE)

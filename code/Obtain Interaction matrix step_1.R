@@ -7,10 +7,10 @@ library(car)
 library(SciViews)
 
 #load plant data
-plants <- read.csv("submission_PNAS/data/raw_data/BE.plants08.16.csv", header = TRUE)
+plants <- read.csv("data/raw_data/BE.plants08.16.csv", header = TRUE)
 
 #load LUI data
-lui <- read.csv("submission_PNAS/data/raw_data/LUI06_15.csv", header  = TRUE)
+lui <- read.csv("data/raw_data/LUI06_15.csv", header  = TRUE)
 
 #stick with LUI at different years
 lui.only <- lui[, grep("LUI", names(lui))]
@@ -126,9 +126,9 @@ colnames(intrinsic.site.lui) <- c("Intrinsic", "LUI")
 
 #Save all these matrices and then go to Step 2 to calculate structural stability metrics. 
 
-write.csv(inter.mat, "submission_PNAS/results/interaction_matrix_lme_average_50.csv")
-write.csv(lui.mat, "submission_PNAS/results/lui_matrix_lme_average_50.csv")
-write.csv(intrinsic.site.lui, "submission_PNAS/results/intrinsic_site_lui_average_lme_50.csv")
+write.csv(inter.mat, "results/interaction_matrix_lme_average_50.csv")
+write.csv(lui.mat, "results/lui_matrix_lme_average_50.csv")
+write.csv(intrinsic.site.lui, "results/intrinsic_site_lui_average_lme_50.csv")
 
 #We also calculate errors----
 coef.list.error <- lapply(mlist, function(x)summary(x)$tTable[, 2]) #column two correspond to std error
@@ -158,7 +158,7 @@ colnames(lui.mat.error) <- hh2
 row.names(intrinsic.site.lui.error) <- hh2
 colnames(intrinsic.site.lui.error) <- c("Intrinsic", "LUI")
 
-write.csv(inter.mat.error, "submission_PNAS/results/interaction_matrix_lme_std_error_50.csv")
-write.csv(lui.mat.error, "submission_PNAS/results/lui_matrix_lme_std_error_50.csv")
-write.csv(intrinsic.site.lui.error, "submission_PNAS/results/intrinsic_site_lui_std_error_lme_50.csv")
+write.csv(inter.mat.error, "results/interaction_matrix_lme_std_error_50.csv")
+write.csv(lui.mat.error, "results/lui_matrix_lme_std_error_50.csv")
+write.csv(intrinsic.site.lui.error, "results/intrinsic_site_lui_std_error_lme_50.csv")
 

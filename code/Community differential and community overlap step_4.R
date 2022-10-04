@@ -5,19 +5,19 @@ size_figure <- c(8, 12) #width and height for saving the final figure
 color.blind <- c("#E69F00", "#56B4E9", "#73c095", "#f95c8a") #palette; additional: CC79A7 #009E73
 
 #load data
-coex3 <- read.csv(file = "submission_PNAS/results/results-LUI_coexistence-3spp_overlap.csv")
+coex3 <- read.csv(file = "results/results-LUI_coexistence-3spp_overlap.csv")
 coex3$feasibility <- as.factor(coex3$feasibility)
 coex3$richness <- 3
 
-coex5 <- read.csv(file = "submission_PNAS/results/results-LUI_coexistence-5spp_overlap.csv")
+coex5 <- read.csv(file = "results/results-LUI_coexistence-5spp_overlap.csv")
 coex5$feasibility <- as.factor(coex5$feasibility)
 coex5$richness <- 5
 
-coex7 <- read.csv(file = "submission_PNAS/results/results-LUI_coexistence-7spp_overlap.csv")
+coex7 <- read.csv(file = "results/results-LUI_coexistence-7spp_overlap.csv")
 coex7$feasibility <- as.factor(coex7$feasibility)
 coex7$richness <- 7
 
-coex11 <- read.csv(file = "submission_PNAS/results/results-LUI_coexistence-11spp_overlap.csv")
+coex11 <- read.csv(file = "results/results-LUI_coexistence-11spp_overlap.csv")
 coex11$feasibility <- as.factor(coex11$feasibility)
 coex11$richness <- 11
 
@@ -84,5 +84,5 @@ ggarrange(diff, over, ncol = 1, nrow = 2, align = "hv",
           vjust = 0)
 
 #save
-ggsave("submission_PNAS/figures/Fig3_main.png", device = "png",
+ggsave("figures/Fig3_main.png", device = "png",
        dpi = 320, width = size_figure[1], height = size_figure[2])

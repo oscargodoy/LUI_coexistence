@@ -3,14 +3,14 @@
 rm(list = ls())
 
 #loading average values
-intrinsic <- read.table("submission_PNAS/results/intrinsic_site_lui_average_lme_50.csv", header = TRUE, sep = ",", row.names = 1)
-alpha <- as.matrix(read.table("submission_PNAS/results/interaction_matrix_lme_average_50.csv", header = TRUE, sep = ",", row.names = 1))
-lui_modify_alpha <- as.matrix(read.table("submission_PNAS/results/lui_matrix_lme_average_50.csv", header = TRUE, sep = ",", row.names = 1))
+intrinsic <- read.table("results/intrinsic_site_lui_average_lme_50.csv", header = TRUE, sep = ",", row.names = 1)
+alpha <- as.matrix(read.table("results/interaction_matrix_lme_average_50.csv", header = TRUE, sep = ",", row.names = 1))
+lui_modify_alpha <- as.matrix(read.table("results/lui_matrix_lme_average_50.csv", header = TRUE, sep = ",", row.names = 1))
 #loading std. error. values
 
-intrinsic_error <- read.table("submission_PNAS/results/intrinsic_site_lui_std_error_lme_50.csv", header = TRUE, sep = ",", row.names = 1)
-alpha_error <- as.matrix(read.table("submission_PNAS/results/interaction_matrix_lme_std_error_50.csv", header = TRUE, sep = ",", row.names = 1))
-lui_modify_alpha_error <- as.matrix(read.table("submission_PNAS/results/lui_matrix_lme_std_error_50.csv", header = TRUE, sep = ",", row.names = 1))
+intrinsic_error <- read.table("results/intrinsic_site_lui_std_error_lme_50.csv", header = TRUE, sep = ",", row.names = 1)
+alpha_error <- as.matrix(read.table("results/interaction_matrix_lme_std_error_50.csv", header = TRUE, sep = ",", row.names = 1))
+lui_modify_alpha_error <- as.matrix(read.table("results/lui_matrix_lme_std_error_50.csv", header = TRUE, sep = ",", row.names = 1))
 
 
 top50.short <- c("Poa_tri", "Poa_pra", "Alo_pra", "Dac_glo", "Tri_rep", "Tar_off", "Lol_per", "Arr_ela", 
@@ -81,7 +81,7 @@ for(i in 1:(length(lui_intrinsic_positive))){
 #remove everything except for matrix and intrinsic with LUI
 rm(list=ls()[! ls() %in% c("lui_alpha", "lui_intrinsic_positive")])
 
-save(lui_alpha, lui_intrinsic_positive, file = "submission_PNAS/results/lower_50sps.RData")
+save(lui_alpha, lui_intrinsic_positive, file = "results/lower_50sps.RData")
 
 #create the datasets
 #upper ----
@@ -130,5 +130,5 @@ for(i in 1:(length(lui_intrinsic_positive))){
 #remove everything except for matrix and intrinsic with LUI
 rm(list=ls()[! ls() %in% c("lui_alpha", "lui_intrinsic_positive")])
 
-save(lui_alpha, lui_intrinsic_positive, file = "submission_PNAS/results/upper_50sps.RData")
+save(lui_alpha, lui_intrinsic_positive, file = "results/upper_50sps.RData")
 

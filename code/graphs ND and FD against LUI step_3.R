@@ -4,10 +4,10 @@ rm(list = ls())
 #mean trend ----
 
 #load coexistence 2 species results
-coex2 <- read.csv(file = "submission_PNAS/results/results-LUI_coexistence-2spp.csv")
+coex2 <- read.csv(file = "results/results-LUI_coexistence-2spp.csv")
 coex2$feasibility <- as.factor(coex2$feasibility)
 
-coex3 <- read.csv(file = "submission_PNAS/results/results-LUI_coexistence-3spp.csv")
+coex3 <- read.csv(file = "results/results-LUI_coexistence-3spp.csv")
 coex3$feasibility <- as.factor(coex3$feasibility)
 
 #ridges
@@ -337,17 +337,17 @@ ggarrange(SND2, SND3, SFD2, SFD3,
           hjust = -1.2,
           vjust = 1.8)
 
-ggsave("submission_PNAS/figures/Fig2_main.png", device = "png",
+ggsave("figures/Fig2_main.png", device = "png",
        dpi = 320, width = size_figure[2], height = size_figure[1])
 
 
 #lower bounds ----
 
 #load coexistence 2 species results
-coex2 <- read.csv(file = "submission_PNAS/results/results_LUI_lower_2spp.csv")
+coex2 <- read.csv(file = "results/results_LUI_lower_2spp.csv")
 coex2$feasibility <- as.factor(coex2$feasibility)
 
-coex3 <- read.csv(file = "submission_PNAS/results/results_LUI_lower_3spp.csv")
+coex3 <- read.csv(file = "results/results_LUI_lower_3spp.csv")
 coex3$feasibility <- as.factor(coex3$feasibility)
 
 #ridges
@@ -676,16 +676,16 @@ ggarrange(SND2, SND3, SFD2, SFD3,
           hjust = -1.2,
           vjust = 1.8)
 
-ggsave("submission_PNAS/figures/FigS4_lower.png", device = "png",
+ggsave("figures/FigS4_lower.png", device = "png",
        dpi = 320, width = size_figure[2], height = size_figure[1])
 
 #upper bounds ----
 
 #load coexistence 2 species results
-coex2 <- read.csv(file = "submission_PNAS/results/results_LUI_upper_2spp.csv")
+coex2 <- read.csv(file = "results/results_LUI_upper_2spp.csv")
 coex2$feasibility <- as.factor(coex2$feasibility)
 
-coex3 <- read.csv(file = "submission_PNAS/results/results_LUI_upper_3spp.csv")
+coex3 <- read.csv(file = "results/results_LUI_upper_3spp.csv")
 coex3$feasibility <- as.factor(coex3$feasibility)
 
 
@@ -1007,7 +1007,7 @@ ggarrange(SND2, SND3, SFD2, SFD3,
           hjust = -1.2,
           vjust = 1.8)
 
-ggsave("submission_PNAS/figures/FigS4_upper.png", device = "png",
+ggsave("figures/FigS4_upper.png", device = "png",
        dpi = 320, width = size_figure[2], height = size_figure[1])
 
 

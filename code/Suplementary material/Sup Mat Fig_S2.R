@@ -1,9 +1,9 @@
 # Relative strength intra versus interspecific competition---- PANEL A
 rm(list = ls())
 
-intrinsic <- read.table("submission_PNAS/results/intrinsic_site_lui_average_lme_50.csv", header = TRUE, sep = ",", row.names = 1)
-alpha <- as.matrix(read.table("submission_PNAS/results/interaction_matrix_lme_average_50.csv", header = TRUE, sep = ",", row.names = 1))
-lui_modify_alpha <- as.matrix(read.table("submission_PNAS/results/lui_matrix_lme_average_50.csv", header = TRUE, sep = ",", row.names = 1))
+intrinsic <- read.table("results/intrinsic_site_lui_average_lme_50.csv", header = TRUE, sep = ",", row.names = 1)
+alpha <- as.matrix(read.table("results/interaction_matrix_lme_average_50.csv", header = TRUE, sep = ",", row.names = 1))
+lui_modify_alpha <- as.matrix(read.table("results/lui_matrix_lme_average_50.csv", header = TRUE, sep = ",", row.names = 1))
 
 top50.short <- c("Poa_tri", "Poa_pra", "Alo_pra", "Dac_glo", "Tri_rep", "Tar_off", "Lol_per", "Arr_ela", 
                  "Fes_rub", "Fes_pra", "Tri_fla", "Ely_rep", "Tri_pra", "Bro_ere", "Ran_rep", "Bro_hor", 
@@ -180,7 +180,7 @@ ggarrange(p_interactions, p_facilitation,
           #font.label = list(size = size_text + 5),
           hjust = c(-2.5, -2.15),
           vjust = c(1.5, 0.5))
-ggsave(filename = "submission_PNAS/figures/SupFig2.png", device = "png",
+ggsave(filename = "figures/SupFig2.png", device = "png",
        width = 15, height = 13, limitsize = FALSE)
 
 

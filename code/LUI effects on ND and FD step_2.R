@@ -5,9 +5,9 @@ rm(list = ls())
   
 #1.Obtaining combinations to calculate niche and fitness diff.----
 #loading average values
-intrinsic <- read.table("submission_PNAS/results/intrinsic_site_lui_average_lme_50.csv", header = TRUE, sep = ",", row.names = 1)
-alpha <- as.matrix(read.table("submission_PNAS/results/interaction_matrix_lme_average_50.csv", header = TRUE, sep = ",", row.names = 1))
-lui_modify_alpha <- as.matrix(read.table("submission_PNAS/results/lui_matrix_lme_average_50.csv", header = TRUE, sep = ",", row.names = 1))
+intrinsic <- read.table("results/intrinsic_site_lui_average_lme_50.csv", header = TRUE, sep = ",", row.names = 1)
+alpha <- as.matrix(read.table("results/interaction_matrix_lme_average_50.csv", header = TRUE, sep = ",", row.names = 1))
+lui_modify_alpha <- as.matrix(read.table("results/lui_matrix_lme_average_50.csv", header = TRUE, sep = ",", row.names = 1))
   
 top50.short <- c("Poa_tri", "Poa_pra", "Alo_pra", "Dac_glo", "Tri_rep", "Tar_off", "Lol_per", "Arr_ela", 
                    "Fes_rub", "Fes_pra", "Tri_fla", "Ely_rep", "Tri_pra", "Bro_ere", "Ran_rep", "Bro_hor", 
@@ -77,7 +77,7 @@ startime <- Sys.time() # to see how much it takes to run
   
   
 #Combinations of two species. 
-combos_lui2 <- readRDS("submission_PNAS/data/combos2.rds")
+combos_lui2 <- readRDS("data/combos2.rds")
   
 col_results  <- c("omega", "theta", "overlap", "differential", "feasibility", "feasibility_pair_to_all", "lui")
 neg_intras <- data.frame()
@@ -121,7 +121,7 @@ results_coex <- foreach (i = 1:length(combos_lui2), .combine = rbind, .packages 
   
   results_coex <- as.data.frame(results_coex)
   results_coex <- tibble::rownames_to_column(results_coex, "combo")
-  write.csv(results_coex, file = "submission_PNAS/results/results-LUI_coexistence-2spp.csv", row.names = FALSE)
+  write.csv(results_coex, file = "results/results-LUI_coexistence-2spp.csv", row.names = FALSE)
   
   #Combinations of three species. 
 
@@ -132,7 +132,7 @@ results_coex <- foreach (i = 1:length(combos_lui2), .combine = rbind, .packages 
   
   
   #Combinations of three species. 
-  combos_lui3 <- readRDS("submission_PNAS/data/combos3.rds")
+  combos_lui3 <- readRDS("data/combos3.rds")
   
   col_results  <- c("omega", "theta", "overlap", "differential", "feasibility", "feasibility_pair_to_all", "lui")
   neg_intras <- data.frame()
@@ -179,15 +179,15 @@ results_coex <- foreach (i = 1:length(combos_lui2), .combine = rbind, .packages 
   #specific changes to 3 species
   results_coex <- results_coex[, c(1:5, 7)]
   colnames(results_coex) <- c("SND", "SFD", "overlap", "differential", "feasibility", "LUI")
-  write.csv(results_coex, file = "submission_PNAS/results/results-LUI_coexistence-3spp.csv", row.names = FALSE)
+  write.csv(results_coex, file = "results/results-LUI_coexistence-3spp.csv", row.names = FALSE)
 
 #3. Compute structural metrics for 3, 5, 7 and 11 sps---- 
 ## with the 26 most common species in order to make it feasible due to computer power.
 ## This info will be used in step 4.
   
-intrinsic <- read.table("submission_PNAS/results/intrinsic_site_lui_average_lme_50.csv", header = TRUE, sep = ",", row.names = 1)
-alpha <- as.matrix(read.table("submission_PNAS/results/interaction_matrix_lme_average_50.csv", header = TRUE, sep = ",", row.names = 1))
-lui_modify_alpha <- as.matrix(read.table("submission_PNAS/results/lui_matrix_lme_average_50.csv", header = TRUE, sep = ",", row.names = 1))
+intrinsic <- read.table("results/intrinsic_site_lui_average_lme_50.csv", header = TRUE, sep = ",", row.names = 1)
+alpha <- as.matrix(read.table("results/interaction_matrix_lme_average_50.csv", header = TRUE, sep = ",", row.names = 1))
+lui_modify_alpha <- as.matrix(read.table("results/lui_matrix_lme_average_50.csv", header = TRUE, sep = ",", row.names = 1))
   
     
 spp_26 <- c("Poa_tri", "Poa_pra", "Alo_pra", "Dac_glo", "Tri_rep", "Tar_off",
@@ -258,10 +258,10 @@ for(i in 1:length(combos_lui11)){
 }
 
 
-#saveRDS(combos_lui3, file = "submission_PNAS/results/combos_lui3_overlap.rds")
-#saveRDS(combos_lui5, file = "submission_PNAS/results/combos_lui5_overlap.rds")
-#saveRDS(combos_lui7, file = "submission_PNAS/results/combos_lui7_overlap.rds")
-#saveRDS(combos_lui11, file = "submission_PNAS/results/combos_lui11_overlap.rds")
+#saveRDS(combos_lui3, file = "results/combos_lui3_overlap.rds")
+#saveRDS(combos_lui5, file = "results/combos_lui5_overlap.rds")
+#saveRDS(combos_lui7, file = "results/combos_lui7_overlap.rds")
+#saveRDS(combos_lui11, file = "results/combos_lui11_overlap.rds")
 
 library(mvtnorm)
 
@@ -274,7 +274,7 @@ library(parallel)
 library(doSNOW)
 
 #Combinations of three species. 
-combos_lui3 <-readRDS(file = "submission_PNAS/results/combos_lui3_overlap.rds")
+combos_lui3 <-readRDS(file = "results/combos_lui3_overlap.rds")
   
 cores = detectCores()
 cl <- makeCluster(cores[1])
@@ -325,10 +325,10 @@ endtime <- Sys.time() #save time once finished
 #specific changes to 3 species
 results_coex <- results_coex[, c(1:5, 7)]
 colnames(results_coex) <- c("SND", "SFD", "overlap", "differential", "feasibility", "LUI")
-write.csv(results_coex, file = "submission_PNAS/results/results-LUI_coexistence-3spp_overlap.csv", row.names = FALSE)
+write.csv(results_coex, file = "results/results-LUI_coexistence-3spp_overlap.csv", row.names = FALSE)
 
 #Combinations of five species. 
-combos_lui5 <-readRDS(file = "submission_PNAS/results/combos_lui5_overlap.rds")
+combos_lui5 <-readRDS(file = "results/combos_lui5_overlap.rds")
 
 cores = detectCores()
 cl <- makeCluster(cores[1])
@@ -378,10 +378,10 @@ endtime <- Sys.time() #save time once finished
 
 results_coex <- results_coex[, c(1:5, 7)]
 colnames(results_coex) <- c("SND", "SFD", "overlap", "differential", "feasibility", "LUI")
-write.csv(results_coex, file = "submission_PNAS/results/results-LUI_coexistence-5spp_overlap.csv", row.names = FALSE)
+write.csv(results_coex, file = "results/results-LUI_coexistence-5spp_overlap.csv", row.names = FALSE)
 
 #Combinations of seven species. 
-combos_lui7 <-readRDS(file = "submission_PNAS/results/combos_lui7_overlap.rds")
+combos_lui7 <-readRDS(file = "results/combos_lui7_overlap.rds")
 
 cores = detectCores()
 cl <- makeCluster(cores[1])
@@ -433,10 +433,10 @@ results_coex <- results_coex[, c(1:5, 7)]
 colnames(results_coex) <- c("SND", "SFD", "overlap", "differential", "feasibility", "LUI")
 results_coex <- as.data.frame(results_coex)
 results_coex <- tibble::rownames_to_column(results_coex, "combo")
-write.csv(results_coex, file = "submission_PNAS/results/results-LUI_coexistence-7spp_overlap.csv", row.names = FALSE)
+write.csv(results_coex, file = "results/results-LUI_coexistence-7spp_overlap.csv", row.names = FALSE)
 
 #Combinations of eleven species. 
-combos_lui11 <-readRDS(file = "submission_PNAS/results/combos_lui11_overlap.rds")
+combos_lui11 <-readRDS(file = "results/combos_lui11_overlap.rds")
 
 cores = detectCores()
 cl <- makeCluster(cores[1])
@@ -486,4 +486,4 @@ endtime <- Sys.time() #save time once finished
 
 results_coex <- results_coex[, c(1:5, 7)]
 colnames(results_coex) <- c("SND", "SFD", "overlap", "differential", "feasibility", "LUI")
-write.csv(results_coex, file = "submission_PNAS/results/results-LUI_coexistence-11spp_overlap.csv", row.names = FALSE)
+write.csv(results_coex, file = "results/results-LUI_coexistence-11spp_overlap.csv", row.names = FALSE)
